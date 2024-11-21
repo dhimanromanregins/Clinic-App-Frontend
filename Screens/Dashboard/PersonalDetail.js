@@ -10,7 +10,11 @@ const PersonalDetail = ({ navigation }) => {
 
     // Handler for button clicks (just logs for now)
     const handleButtonClick = (field) => {
-        console.log(`${field} clicked`);
+        navigation.navigate('MyAccount')
+        // You can later implement any specific functionality for each button
+    };
+    const handleButtonClickBooking = (field) => {
+        navigation.navigate('MedicalHistory')
         // You can later implement any specific functionality for each button
     };
 
@@ -49,7 +53,7 @@ const PersonalDetail = ({ navigation }) => {
 
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => handleButtonClick('Booking History')}>
+                    onPress={() => handleButtonClickBooking('Booking History')}>
                     <Text style={styles.buttonText}>Booking History</Text>
                 </TouchableOpacity>
 

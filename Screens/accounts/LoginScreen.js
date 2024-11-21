@@ -46,6 +46,7 @@ export default function LoginScreen({ navigation }) {
       });
 
       const data = await response.json();
+      console.log(data, '-----------')
       if (response.ok) {
         // If the response is successful, navigate to LoginOTP screen
         ToastAndroid.showWithGravity(

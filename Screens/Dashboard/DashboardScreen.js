@@ -119,11 +119,11 @@ const Dashboard = ({ navigation }) => {
           </TouchableOpacity>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Mykids')}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('kids')}>
               <MaterialIcons name="folder" size={34} color="#2a4770" />
               <Text style={styles.iconButtonText}>My Kids Files</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton} onPress={() => alert('Calendar clicked')}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Calendar')}>
               <MaterialIcons name="calendar-today" size={34} color="#2a4770" />
               <Text style={styles.iconButtonText}>Calendar</Text>
             </TouchableOpacity>

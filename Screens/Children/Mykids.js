@@ -108,26 +108,29 @@ const MyKids = ({ route, navigation }) => {
 
         {/* Icon and Button Row */}
         <View style={styles.row}>
-          <TouchableOpacity style={styles.sideIcon} onPress={() => alert('Icon clicked')}>
+          <TouchableOpacity style={styles.sideIcon} onPress={() => navigation.navigate('MedicalHistory', { kidDetails })}>
             <MaterialIcons name="info" size={30} color="#2a4770" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.medicalHistoryButton} onPress={() => alert('Medical History clicked')}>
+          <TouchableOpacity style={styles.medicalHistoryButton} onPress={() => navigation.navigate('MedicalHistory', { kidDetails })}>
             <Text style={styles.medicalHistoryText}>Medical History</Text>
           </TouchableOpacity>
         </View>
 
         {/* Additional Buttons and Icons */}
         <View style={styles.row}>
-          <TouchableOpacity style={styles.sideIcon} onPress={() => alert('Vaccination Certificate clicked')}>
+          <TouchableOpacity style={styles.sideIcon} onPress={() => navigation.navigate('Vaccination', { kidDetails })}>
             <MaterialIcons name="local-hospital" size={30} color="#2a4770" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.medicalHistoryButton} onPress={() => alert('Vaccination Certificate clicked')}>
+          <TouchableOpacity
+            style={styles.medicalHistoryButton}
+            onPress={() => navigation.navigate('Vaccination', { kidDetails })}  // Navigate to 'Vaccination' page
+          >
             <Text style={styles.medicalHistoryText}>Vaccination Certificate</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.row}>
-          <TouchableOpacity style={styles.sideIcon} onPress={() => alert('Book clicked')}>
+          <TouchableOpacity style={styles.sideIcon} onPress={() => navigation.navigate('BookDoctor')} >
             <MaterialIcons name="book" size={30} color="#2a4770" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -139,16 +142,19 @@ const MyKids = ({ route, navigation }) => {
         </View>
 
         <View style={styles.row}>
-          <TouchableOpacity style={styles.sideIcon} onPress={() => alert('Reports and Sick Leave clicked')}>
+          <TouchableOpacity style={styles.sideIcon} onPress={() => navigation.navigate('ReportsSick', { childId: kidDetails.id })}>
             <MaterialIcons name="assignment" size={30} color="#2a4770" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.medicalHistoryButton} onPress={() => alert('Reports and Sick Leave clicked')}>
+          <TouchableOpacity
+            style={styles.medicalHistoryButton}
+            onPress={() => navigation.navigate('ReportsSick', { childId: kidDetails.id })}
+          >
             <Text style={styles.medicalHistoryText}>Reports and Sick Leave</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.row}>
-          <TouchableOpacity style={styles.sideIcon} onPress={() => alert('Telemedicine clicked')}>
+          <TouchableOpacity style={styles.sideIcon} onPress={() => navigation.navigate('TeleMedicine')}>
             <MaterialIcons name="phone-in-talk" size={30} color="#2a4770" />
           </TouchableOpacity>
           <TouchableOpacity

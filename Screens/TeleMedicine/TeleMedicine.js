@@ -1,10 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView , ToastAndroid} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons for language icon
 import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome for the back arrow icon
+import { jwtDecode } from "jwt-decode";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const TeleMedicine = ({ navigation }) => {
+
+const TeleMedicine = ({ navigation, userId }) => { // Accept userId from props or context
   const [doctors, setDoctors] = useState([]);
+
+  const handlePress = async (doctor) => {
+    const accessToken = await AsyncStorage.getItem('access_token');
+    console.log("Access Token:", accessToken); // Debug log
+  
+    if (!accessToken) {
+      console.error("No access token found.");
+      return;
+    }
+    
+    if (doctor.is_available) {
+      console.log("Doctor is available, sending request to book...");
+      
+      // Send POST request to API
+      fetch('http://192.168.1.111:8001/create-tele-doctor/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`, // Add the token to the Authorization header
+        },
+        body: JSON.stringify({
+          doctor_id: doctor.id, // Pass only doctor ID in the body
+        }),
+      })
+        .then((response) => {
+          if (response.status === 201) {
+            ToastAndroid.show('Doctor successfully booked!', ToastAndroid.SHORT);  // Success toast
+            return response.json();
+          } else {
+            ToastAndroid.show('Error booking doctor!', ToastAndroid.SHORT);  // Error toast
+            throw new Error('Error booking doctor');
+          }
+        })
+        .then((data) => {
+          console.log("Successfully booked with response:", data);
+          navigation.navigate('TeleDoctor', { doctor: doctor }); // Navigate to the TeleDoctor screen
+        })
+        .catch((error) => {
+          console.error('Error booking doctor:', error);
+        });
+    } else {
+      ToastAndroid.show('This doctor is currently unavailable.', ToastAndroid.SHORT);  // Unavailable toast
+    }
+  };
 
   // Fetch doctors data from the API
   useEffect(() => {
@@ -18,11 +65,6 @@ const TeleMedicine = ({ navigation }) => {
       });
   }, []);
 
-  // Handle navigation to AddDetailComponent on Book button click
-  const handleBookClick = (doctor) => {
-    navigation.navigate('Booking', { doctor });  // Navigate to AddDetailComponent and pass doctor data
-  };
-
   const handleDoctorDetail = (doctorId) => {
     navigation.navigate('DoctorDetail', { doctorId });
   };
@@ -31,15 +73,15 @@ const TeleMedicine = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         {/* Language Switcher Icon */}
-        <TouchableOpacity 
-          style={styles.languageIcon} 
+        <TouchableOpacity
+          style={styles.languageIcon}
           onPress={() => alert('Language switch clicked')}
         >
           <MaterialIcons name="language" size={34} color="white" />
         </TouchableOpacity>
 
         {/* Back Button Icon */}
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => navigation.goBack()} // Go back to the previous screen
           style={styles.backButton}
         >
@@ -69,15 +111,10 @@ const TeleMedicine = ({ navigation }) => {
 
             {/* Container for the Text and Available Button */}
             <View style={styles.availableSection}>
-              {/* Text Div Before the Button */}
-              <Text style={styles.textDivText}>
-                Doctor is {doctor.is_available ? 'available for booking' : 'not available'}
-              </Text>
-
-              {/* Book Button */}
+              <Text style={styles.doctorName}>{doctor.name}</Text>
               <TouchableOpacity
                 style={[styles.bookButton, !doctor.is_available && styles.disabledButton]}
-                onPress={() => doctor.is_available && handleBookClick(doctor)} // On press, navigate to AddDetailComponent with doctor data
+                onPress={() => handlePress(doctor)}  // Corrected: pass doctor as argument
                 disabled={!doctor.is_available}
               >
                 <Text style={styles.bookText}>
@@ -89,7 +126,7 @@ const TeleMedicine = ({ navigation }) => {
             {/* Exclamation Icon */}
             <TouchableOpacity
               style={styles.exclamationWrapper}
-              onPress={() => handleDoctorDetail(doctor.id)} 
+              onPress={() => handleDoctorDetail(doctor.id)}
             >
               <FontAwesome name="exclamation-circle" size={24} color="#2a4770" />
             </TouchableOpacity>
@@ -103,7 +140,7 @@ const TeleMedicine = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  // Centers the content vertically
+    // Centers the content vertically
     alignItems: 'center', // Centers the content horizontally
     backgroundColor: '#f9f9f9', // Light background color
   },
@@ -153,7 +190,7 @@ const styles = StyleSheet.create({
     height: 160,
     marginBottom: 20,
     position: 'relative',
-   
+
   },
   profileSection: {
     flexDirection: 'row',
@@ -188,6 +225,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(24,212,184,255)',
     borderRadius: 50,
     padding: 8,
+  },
+  doctorName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
   },
 });
 

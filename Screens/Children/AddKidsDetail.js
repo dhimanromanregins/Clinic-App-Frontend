@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, KeyboardAvoidingView, Platform , ToastAndroid} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -59,7 +59,6 @@ const AddKidsDetail = ({ navigation }) => {
       date_of_birth: dob
     };
 
-    console.log(data, '9999999999999999');
 
     try {
       const token = await AsyncStorage.getItem('access_token');
@@ -79,13 +78,16 @@ const AddKidsDetail = ({ navigation }) => {
         body: JSON.stringify(data)
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to submit data');
+      if (response.status === 201) {
+        const result = await response.json();
+        console.log('Submitted successfully:', result);
+        ToastAndroid.show('Child added successfully!', ToastAndroid.SHORT);
+        navigation.navigate('kids'); // Navigate to the Kids page
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to submit:', errorData);
+        ToastAndroid.show('Failed to submit data. Please try again.', ToastAndroid.LONG);
       }
-
-      const result = await response.json();
-      console.log('Submitted successfully:', result);
-      // Handle success (navigate, alert, etc.)
     } catch (error) {
       console.error('Error:', error);
       // Handle error
@@ -132,40 +134,67 @@ const AddKidsDetail = ({ navigation }) => {
         {errors.uaeId && <Text style={styles.errorText}>{errors.uaeId}</Text>}
 
         {/* Gender Dropdown */}
-        <Text style={styles.label}>Sex</Text>
-        <Picker selectedValue={sex} style={styles.input} onValueChange={setSex}>
-          {genderChoices.map((choice) => (
-            <Picker.Item key={choice.value} label={choice.label} value={choice.value} />
-          ))}
-        </Picker>
-        {errors.sex && <Text style={styles.errorText}>{errors.sex}</Text>}
+        <View style={styles.row}>
+  {/* Sex Input */}
+  <View style={styles.inputContainer}>
+    <Text style={styles.label}>Sex</Text>
+    <View style={styles.pickerContainer}> {/* Wrapping Picker with a View */}
+      <Picker
+        selectedValue={sex}
+        style={styles.picker} // Apply general picker style
+        onValueChange={setSex}
+      >
+        {genderChoices.map((choice) => (
+          <Picker.Item key={choice.value} label={choice.label} value={choice.value} />
+        ))}
+      </Picker>
+    </View>
+    {errors.sex && <Text style={styles.errorText}>{errors.sex}</Text>}
+  </View>
 
-        {/* Nationality Input */}
-        <Text style={styles.label}>Nationality</Text>
-        <TextInput
-          style={styles.input}
-          value={nationality}
-          onChangeText={setNationality}
-        />
-        {errors.nationality && <Text style={styles.errorText}>{errors.nationality}</Text>}
+  {/* Nationality Input */}
+  <View style={styles.inputContainer}>
+    <Text style={styles.label}>Nationality</Text>
+    <TextInput
+      style={styles.input}
+      value={nationality}
+      onChangeText={setNationality}
+    />
+    {errors.nationality && <Text style={styles.errorText}>{errors.nationality}</Text>}
+  </View>
+</View>
+
 
         {/* Insurance Company Dropdown */}
-        <Text style={styles.label}>Insurance Company</Text>
-        <Picker selectedValue={insuranceCompany} style={styles.input} onValueChange={setInsuranceCompany}>
-          {insuranceChoices.map((choice) => (
-            <Picker.Item key={choice.value} label={choice.label} value={choice.value} />
-          ))}
-        </Picker>
-        {errors.insuranceCompany && <Text style={styles.errorText}>{errors.insuranceCompany}</Text>}
+        <View style={styles.row}>
+  {/* Insurance Company Input */}
+  <View style={styles.inputContainer}>
+    <Text style={styles.label}>Insurance Company</Text>
+    <View style={styles.pickerContainer}> {/* Wrap the Picker in a View to style it */}
+      <Picker
+        selectedValue={insuranceCompany}
+        style={styles.picker} // Apply the picker-specific style
+        onValueChange={setInsuranceCompany}
+      >
+        {insuranceChoices.map((choice) => (
+          <Picker.Item key={choice.value} label={choice.label} value={choice.value} />
+        ))}
+      </Picker>
+    </View>
+    {errors.insuranceCompany && <Text style={styles.errorText}>{errors.insuranceCompany}</Text>}
+  </View>
 
-        {/* Date of Birth Input */}
-        <Text style={styles.label}>Date of Birth</Text>
-        <TextInput
-          style={styles.input}
-          value={dob}
-          onChangeText={setDob}
-        />
-        {errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
+  {/* Date of Birth Input */}
+  <View style={styles.inputContainer}>
+    <Text style={styles.label}>Date of Birth</Text>
+    <TextInput
+      style={styles.input}
+      value={dob}
+      onChangeText={setDob}
+    />
+    {errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
+  </View>
+</View>
 
         {/* Insurance Number */}
         <Text style={styles.label}>Insurance Number</Text>
@@ -236,13 +265,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 15,
     fontSize: 16,
-    backgroundColor: '#2a4770', // Input background color
-    color: '#fff', // Text color inside the input fields
+    backgroundColor: '#2a4770', 
+    color: '#fff', 
+    height: 60, 
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 15,
+    width: '100%',
   },
   halfWidth: {
     width: '48%', // Ensures both inputs take half width of the row
@@ -255,6 +286,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
    
   },
+
   buttonText: {
     color: '#ffffff',
     fontSize: 18,
@@ -263,7 +295,23 @@ const styles = StyleSheet.create({
   },
   errorText:{
     color:'red'
-  }
+  },
+ 
+  inputContainer: {
+    width: '48%', // Adjusting width slightly to account for any spacing
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    backgroundColor: '#2a4770', 
+    borderColor: '#ccc',
+    borderRadius: 5, // Border radius for the Picker
+    overflow: 'hidden', // Ensure the border radius is visible
+// Make sure the Picker has the same height as the TextInput
+  },
+  picker: {
+    height: 58, // Ensure the Picker is properly sized
+    width: '100%',
+  },
 });
 
 export default AddKidsDetail;

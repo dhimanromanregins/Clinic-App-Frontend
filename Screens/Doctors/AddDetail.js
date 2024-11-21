@@ -25,7 +25,8 @@ const AddDetail = ({ route, navigation }) => {
         setDoctor(data);
       } catch (error) {
         console.error(error);
-        Alert.alert('Error', 'Failed to fetch doctor details');
+        ToastAndroid.show('Failed to fetch doctor details', ToastAndroid.SHORT);
+
       }
     };
 
@@ -77,12 +78,13 @@ const AddDetail = ({ route, navigation }) => {
 
   const handleBooking = async () => {
     if (kids.length === 0 || kids.every(kid => kid === '')) {
-      Alert.alert('Error', 'Please add or select a child');
+
+      ToastAndroid.show('Please add or select a child', ToastAndroid.SHORT);
       return;
     }
 
     if (!selectedSlot) {
-      Alert.alert('Error', 'Please select a time slot');
+      ToastAndroid.show('Please select a time slot', ToastAndroid.SHORT);
       return;
     }
 
@@ -101,7 +103,7 @@ const AddDetail = ({ route, navigation }) => {
     try {
       const accessToken = await AsyncStorage.getItem('access_token');
       if (!accessToken) {
-        Alert.alert('Error', 'User not authenticated. Please log in again.');
+        ToastAndroid.show('User not authenticated. Please log in again.', ToastAndroid.SHORT);
         return;
       }
       const response = await fetch(`${BASE_URL}/book-slot/`, {
@@ -118,11 +120,13 @@ const AddDetail = ({ route, navigation }) => {
       }
 
       const data = await response.json();
-      Alert.alert('Success', 'Your slot has been successfully booked!');
+      ToastAndroid.show('Your slot has been successfully booked!', ToastAndroid.SHORT);
+
       navigation.goBack(); // Navigate back after successful booking
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Failed to book the slot');
+      ToastAndroid.show('Failed to book the slot', ToastAndroid.SHORT);
+
     }
   };
 
