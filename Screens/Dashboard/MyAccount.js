@@ -15,7 +15,7 @@ const MyAccount = ({ navigation }) => {
                 const accessToken = await AsyncStorage.getItem('access_token');
 
                 if (accessToken) {
-                    const response = await fetch('http://192.168.1.111:8001/api/profile/', {
+                    const response = await fetch(`${BASE_URL}/api/profile/`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${accessToken}`,
@@ -56,7 +56,7 @@ const MyAccount = ({ navigation }) => {
             const accessToken = await AsyncStorage.getItem('access_token');
 
             if (accessToken) {
-                const response = await fetch('http://192.168.1.111:8001/api/profile/', {
+                const response = await fetch(`${BASE_URL}/api/profile/`, {
                     method: 'PATCH',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,

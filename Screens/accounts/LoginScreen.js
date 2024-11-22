@@ -78,17 +78,15 @@ export default function LoginScreen({ navigation }) {
   };
 
   // Text based on the selected language
-  const loginText = language === 'en' ? 'Login' : language === 'es' ? 'Iniciar sesión' : language === 'fr' ? 'Connexion' : 'لاگ ان';
-  const mobileText = language === 'en' ? 'Mobile Number' : language === 'es' ? 'Número de móvil' : language === 'fr' ? 'Numéro de mobile' : 'موبائل نمبر';
-  const passwordText = language === 'en' ? 'Password' : language === 'es' ? 'Contraseña' : language === 'fr' ? 'Mot de passe' : 'پاسورڈ';
-  const signUpText = language === 'en' ? "Don't have an account?" : language === 'es' ? '¿No tienes una cuenta?' : language === 'fr' ? 'Vous n\'avez pas de compte?' : 'کیا آپ کا اکاؤنٹ نہیں ہے؟';
-  const signUpLinkText = language === 'en' ? 'Sign Up' : language === 'es' ? 'Registrarse' : language === 'fr' ? 'S\'inscrire' : 'رجسٹر کریں';
+const loginText = language === 'en' ? 'Login' : 'تسجيل الدخول';
+const mobileText = language === 'en' ? 'Mobile Number' : 'رقم الهاتف';
+const passwordText = language === 'en' ? 'Password' : 'کلمة المرور';
+const signUpText = language === 'en' ? "Don't have an account?" : 'کیا آپ کا اکاؤنٹ نہیں ہے؟';
+const signUpLinkText = language === 'en' ? 'Sign Up' : 'حساب جديد';
 
   // Available languages
   const languages = [
     { code: 'en', label: 'English' },
-    { code: 'es', label: 'Español' },
-    { code: 'fr', label: 'Français' },
     { code: 'ur', label: 'اردو' },
   ];
 

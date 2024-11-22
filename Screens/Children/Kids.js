@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ToastAndroid,ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ToastAndroid,ScrollView,ActivityIndicator, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from "../../Actions/Api"
 
 const Kids = ({ navigation }) => {
-  const [kids, setKids] = useState([]); // State to store kids data
-  const [loading, setLoading] = useState(true); // State for loading indicator
+  const [kids, setKids] = useState([]); 
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const fetchKids = async () => {
       try {
-        const accessToken = await AsyncStorage.getItem('access_token'); // Get access token from AsyncStorage
+        const accessToken = await AsyncStorage.getItem('access_token');
         if (!accessToken) {
           ToastAndroid.show('No access token found', ToastAndroid.SHORT);
           setLoading(false);
@@ -22,7 +22,7 @@ const Kids = ({ navigation }) => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`, // Pass access token in headers
+            Authorization: `Bearer ${accessToken}`, 
           },
         });
 
@@ -31,7 +31,7 @@ const Kids = ({ navigation }) => {
         }
 
         const data = await response.json();
-        setKids(data); // Save kids data to state
+        setKids(data);
         setLoading(false);
       } catch (error) {
         console.error(error);
@@ -59,7 +59,7 @@ const Kids = ({ navigation }) => {
         <Text style={styles.text}>Kids</Text>
         <View style={styles.borderLine} />
       </View>
-
+      <ScrollView style={styles.scrollView}>
       {/* Loading Indicator */}
       {loading ? (
         <ActivityIndicator size="large" color="#2a4770" />
@@ -98,6 +98,7 @@ const Kids = ({ navigation }) => {
           )}
         </View>
       )}
+      </ScrollView>
 
       {/* Plus Button */}
       <TouchableOpacity
@@ -144,13 +145,19 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 10,
   },
-  // Card Section
+  scrollView: {
+    flex: 1,
+    marginBottom: 10,
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+
   card: {
-    width: '90%',
+    width: '100%',
     flexDirection: 'row',
     borderRadius: 10,
-    elevation: 5, // Adds shadow for Android
-    shadowColor: '#000', // Adds shadow for iOS
+    elevation: 5, 
+    shadowColor: '#000', 
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -159,23 +166,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardGreen: {
-    backgroundColor: 'rgba(24,212,184,255)', // Green background
+    backgroundColor: 'rgba(24,212,184,255)',
   },
   cardBlack: {
-    backgroundColor: '#000000', // Black background
+    backgroundColor: '#000000',
   },
   cardBlue: {
-    backgroundColor: '#2a4770', // Blue background
+    backgroundColor: '#2a4770',
   },
   profileImage: {
     width: 80,
     height: 80,
-    borderRadius: 40, // Circular image
+    borderRadius: 40, 
     marginRight: 10,
   },
   cardContent: {
     flex: 1,
-    alignItems: 'flex-end', // Align content to the right
+    alignItems: 'flex-end',
     textAlign: 'right',
   },
   cardTitle: {
@@ -192,15 +199,15 @@ const styles = StyleSheet.create({
   },
   plusButton: {
     position: 'absolute',
-    bottom: 20, // Adjust placement from the bottom
-    alignSelf: 'center', // Center horizontally
+    bottom: 20,
+    alignSelf: 'center', 
     backgroundColor: 'rgba(24,212,184,255)',
     borderRadius: 50,
     width: 60,
     height: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5, // Add shadow for floating effect
+    elevation: 5,
   },
 });
 

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-
+import BASE_URL from '../../Actions/Api'
 const SickLeaveRequest = ({ navigation }) => {
   const [children, setChildren] = useState([]);
   const [selectedChild, setSelectedChild] = useState(null);
@@ -17,7 +17,7 @@ const SickLeaveRequest = ({ navigation }) => {
       try {
         const token = await AsyncStorage.getItem('access_token');
         console.log(token, '--------')
-        const response = await fetch('http://192.168.1.111:8001/children/', {
+        const response = await fetch(`${BASE_URL}/children/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -46,7 +46,7 @@ const SickLeaveRequest = ({ navigation }) => {
     setIsSubmitting(true);
     try {
       // const token = await AsyncStorage.getItem('accessToken');
-      const response = await fetch('http://192.168.1.111:8001/api/sick-leave-request/', {
+      const response = await fetch(`${BASE_URL}/api/sick-leave-request/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,8 +157,7 @@ const SickLeaveRequest = ({ navigation }) => {
 };
 const styles = StyleSheet.create({
   container: {
-
-    paddingHorizontal: 20,
+     paddingHorizontal: 20,
      // Padding for the content inside the ScrollView
   },
   header: {
@@ -202,6 +201,7 @@ const styles = StyleSheet.create({
   inputGroupHalf: {
     width: '48%',
     marginBottom: 20,
+    marginTop:'20',
   },
 
   Newlabel: {
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#2a4770',
-
+  
     textAlign: 'right',
     justifyContent: 'flex-end',
   },
@@ -269,27 +269,29 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     marginBottom: 20,
-    backgroundColor: '#2a4770', // Background color for the container
-    color: '#fff', // Text color
-    borderRadius: 10, // Rounded corners
-    paddingHorizontal: 10, // Padding to prevent text from touching the sides
+    backgroundColor: '#2a4770',
+    borderRadius: 10,
+    paddingHorizontal: 10,
   },
   dropdownLabel: {
-    fontSize: 16, // Font size for the label
-    fontWeight: 'bold', // Bold font weight for the label
-    color: '#fff', // Color of the label
-    marginBottom: 8, // Space between label and Picker
-    textAlign: 'right', // Center align the label text
+    fontSize: 16, 
+    fontWeight: 'bold', 
+    color: '#fff',
+    marginBottom: 8,
+    textAlign: 'right',
   },
+  
   picker: {
-    height: 50, // Adjust height to reduce extra space
-    width: '100%', // Full width of the container
-    color: '#fff', // Text color for the Picker items
-    textAlign: 'center', // Center align the text inside the Picker items
-    borderRadius: 10, // Rounded corners for the Picker
-    backgroundColor: '#2a4770', // Background color of the Picker
-    paddingVertical: 0, // Remove vertical padding to eliminate extra space
-    marginTop: -8, // Adjust margin to eliminate extra space
+    height: 50, 
+    width: '100%', 
+    color: '#fff', 
+    textAlign: 'center',
+    borderRadius: 10, 
+    backgroundColor: '#2a4770', 
+    paddingVertical: 0,
+    marginTop: -8, 
+    borderWidth: 5,
+
   },
 });
 

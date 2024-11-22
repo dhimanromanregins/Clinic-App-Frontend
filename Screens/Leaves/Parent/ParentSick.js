@@ -39,7 +39,7 @@ const ParentSick = ({ navigation }) => {
         sender: sender,
       };
 
-      const response = await fetch('http://192.168.1.111:8001/api/parent-sick-leave/', {
+      const response = await fetch(`${BASE_URL}/api/parent-sick-leave/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

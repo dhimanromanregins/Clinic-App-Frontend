@@ -5,6 +5,7 @@ import {
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../Actions/Api';
 
 const MedicalHistory = ({ navigation }) => {
   // const { kidDetails } = route.params;
@@ -21,7 +22,7 @@ const MedicalHistory = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch('http://192.168.1.111:8001/api/user/bookings/', {
+      const response = await fetch(`${BASE_URL}/api/user/bookings/`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

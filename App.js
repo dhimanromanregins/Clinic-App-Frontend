@@ -41,6 +41,7 @@ import TeleDoctor from './Screens/TeleMedicine/TeleDoctor';
 import Vaccination from './Screens/Vaccination/Vaccination';
 import MedicalReports from './Screens/Medical/MedicalReports';
 import MedicalHistory from './Screens/Medical/MedicalHistory';
+import BookingConfirm from './Screens/Doctors/BookingConfirm';
 
 
 // Home Screen Component
@@ -301,6 +302,14 @@ export default function App() {
          <Stack.Screen
           name="MyAccount"
           component={MyAccount}
+          options={{
+            headerShown: false,
+            
+          }}
+        />
+         <Stack.Screen
+          name="BookingConfirm"
+          component={BookingConfirm}
           options={{
             headerShown: false,
             

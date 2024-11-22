@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ToastA
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from "jwt-decode";
+import { BASE_URL } from '../../../Actions/Api';
 
 const WhomeItMayCocern = ({ navigation }) => {
   const [kids, setKids] = useState([{ name: '' }]);
@@ -50,7 +51,7 @@ const WhomeItMayCocern = ({ navigation }) => {
       };
 
       // Send the data to the backend API
-      const response = await fetch('http://192.168.1.111:8001/to-whom-it-may-concern/', {
+      const response = await fetch(`${BASE_URL}/to-whom-it-may-concern/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

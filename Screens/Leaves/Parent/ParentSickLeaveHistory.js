@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking } from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../../Actions/Api';
 
 const ParentSickLeaveHistory = ({ navigation }) => {
   const [sickLeaveRecords, setSickLeaveRecords] = useState([]);
@@ -17,7 +18,7 @@ const ParentSickLeaveHistory = ({ navigation }) => {
         return;
       }
 
-      const response = await fetch(`http://192.168.1.111:8001/parent-sick-leave-history/`, {
+      const response = await fetch(`${BASE_URL}/parent-sick-leave-history/`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${accessToken}`,

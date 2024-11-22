@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
+import { BASE_URL } from '../../Actions/Api';
 
 const AddKidsDetail = ({ navigation }) => {
   const [fullName, setFullName] = useState('');
@@ -69,7 +70,7 @@ const AddKidsDetail = ({ navigation }) => {
       }
       setAccessToken(token);
 
-      const response = await fetch('http://192.168.1.111:8001/api/children/', {
+      const response = await fetch(`${BASE_URL}/api/children/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

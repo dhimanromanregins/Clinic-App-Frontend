@@ -5,14 +5,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BASE_URL} from "../../Actions/Api"
 
 const AddDetail = ({ route, navigation }) => {
-  const { doctorId } = route.params;
+  const { doctor_details } = route.params;
   const [doctor, setDoctor] = useState(null);
   const [dateTime, setDateTime] = useState('');
   const [timeSlots, setTimeSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null); 
   const [kids, setKids] = useState(['']);
   const [userId, setUserId] = useState(null); // Assume userId is passed or available from context or login
-
+  const doctorId = doctor_details.id
   useEffect(() => {
     // Fetch doctor's details
     const fetchDoctorDetails = async () => {
@@ -122,7 +122,7 @@ const AddDetail = ({ route, navigation }) => {
       const data = await response.json();
       ToastAndroid.show('Your slot has been successfully booked!', ToastAndroid.SHORT);
 
-      navigation.goBack(); // Navigate back after successful booking
+      navigation.navigate('BookingConfirm', { bookingData, doctor_details });
     } catch (error) {
       console.error(error);
       ToastAndroid.show('Failed to book the slot', ToastAndroid.SHORT);

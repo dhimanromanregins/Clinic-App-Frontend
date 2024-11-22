@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Image, Dimensions, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal,Image, Dimensions, FlatList } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BASE_URL } from "../../Actions/Api"
 
@@ -8,7 +8,26 @@ const { width: screenWidth } = Dimensions.get('window');
 const Dashboard = ({ navigation }) => {
   const [currentIndex, setCurrentIndex] = useState(0);  // State to track the current index
   const [images, setImages] = useState([]);  // State to store banner images
+  const [language, setLanguage] = useState('en');
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
+  const Booking = language === 'en' ? 'Book Medical Consultation' : 'حجز موعد';
+  const Mykids = language === 'en' ? 'My kids' : 'أطفالي';
+  const Telemedicine = language === 'en' ? 'Tele medicine' : 'العلاج عن بعد';
+  const Calendar = language === 'en' ? 'Calendar' : 'مواعيد العيادة';
+  const ContactUs = language === 'en' ? 'Contact Us' : 'معلومات العيادة';
+  const MyKids = language === 'en' ? 'Reports' : 'التقارير و الملفات';
+
+  const toggleLanguage = (selectedLanguage) => {
+    setLanguage(selectedLanguage);
+    setIsModalVisible(false); 
+  };
+
+  
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'ur', label: 'اردو' },
+  ];
   // Fetch banners from the API using fetch
   useEffect(() => {
     const fetchBanners = async () => {
@@ -53,11 +72,34 @@ const Dashboard = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
+       <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <FlatList
+                data={languages}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => toggleLanguage(item.code)} style={styles.languageOption}>
+                    <Text style={styles.languageText}>{item.label}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item.code}
+              />
+              <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       <View style={styles.container}>
         {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.leftHeaderIcons}>
-            <TouchableOpacity onPress={() => alert('Language switch clicked')}>
+            <TouchableOpacity onPress={() => setIsModalVisible(true)}>
               <MaterialIcons name="language" size={34} color="white" />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => alert('Notifications clicked')}>
@@ -115,7 +157,7 @@ const Dashboard = ({ navigation }) => {
             style={styles.fullWidthButton}
             onPress={() => navigation.navigate('BookDoctor')}
           >
-            <Text style={styles.fullWidthButtonText}>Book Medical Consultation</Text>
+            <Text style={styles.fullWidthButtonText}>{Booking}</Text>
           </TouchableOpacity>
 
           <View style={styles.buttonRow}>
@@ -125,11 +167,11 @@ const Dashboard = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Calendar')}>
               <MaterialIcons name="calendar-today" size={34} color="#2a4770" />
-              <Text style={styles.iconButtonText}>Calendar</Text>
+              <Text style={styles.iconButtonText}>{Calendar}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('kids')}>
               <MaterialIcons name="people" size={34} color="#2a4770" />
-              <Text style={styles.iconButtonText}>My Kids</Text>
+              <Text style={styles.iconButtonText}>{Mykids}</Text>
             </TouchableOpacity>
           </View>
 
@@ -139,11 +181,11 @@ const Dashboard = ({ navigation }) => {
               onPress={() => navigation.navigate('TeleMedicine')} // Navigate to TeleMedicine screen
             >
               <MaterialIcons name="video-call" size={34} color="#2a4770" />
-              <Text style={styles.iconButtonText}>Telemedicine</Text>
+              <Text style={styles.iconButtonText}>{Telemedicine}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton} onPress={() => alert('Contact Us clicked')}>
               <MaterialIcons name="phone" size={34} color="#2a4770" />
-              <Text style={styles.iconButtonText}>Contact Us</Text>
+              <Text style={styles.iconButtonText}>{ContactUs}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -261,6 +303,34 @@ const styles = StyleSheet.create({
     marginTop: 5,
     color: '#2a4770',
     fontSize: 14,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Background overlay
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+  },
+  languageOption: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+  },
+  languageText: {
+    fontSize: 18,
+    color: 'black',
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#24d4b8',
+    borderRadius: 5,
+    alignItems: 'center',
   },
 });
 

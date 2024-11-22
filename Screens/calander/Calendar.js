@@ -3,13 +3,13 @@ import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Image, ToastAndro
 import { MaterialIcons } from '@expo/vector-icons'; // For icons
 import { FontAwesome } from '@expo/vector-icons'; // For the back arrow icon
 import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient from expo-linear-gradient
-
+import { BASE_URL } from '../../Actions/Api';
 const Calendar = () => {
   const [doctors, setDoctors] = useState([]);
 
   useEffect(() => {
     // Fetch the doctors' availability data from the API
-    fetch('http://192.168.1.111:8001/api/doctors-availability/?date=2024-11-21')
+    fetch(`${BASE_URL}/api/doctors-availability/?date=2024-11-21`)
       .then((response) => response.json())
       .then((data) => {
         // Update the state with the fetched data
@@ -77,7 +77,7 @@ const Calendar = () => {
                 <View style={styles.cardContent}>
                   {/* Profile Picture */}
                   <Image
-                    source={{ uri: `http://192.168.1.111:8001${doctor.profile_photo}` }} // Use base URL for the image
+                    source={{ uri: `${BASE_URL}${doctor.profile_photo}` }} // Use base URL for the image
                     style={styles.profilePicture}
                   />
 

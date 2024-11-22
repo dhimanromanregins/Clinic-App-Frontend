@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Linking } from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../Actions/Api';
 
 const SickLeave = ({ route, navigation }) => {
   const { childId } = route.params;
@@ -17,7 +18,7 @@ const SickLeave = ({ route, navigation }) => {
         return;
       }
 
-      const response = await fetch(`http://192.168.1.111:8001/api/sick-leave-records/?child_id=${childId}`, {
+      const response = await fetch(`${BASE_URL}/api/sick-leave-records/?child_id=${childId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${accessToken}`,

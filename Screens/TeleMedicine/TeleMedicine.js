@@ -22,7 +22,7 @@ const TeleMedicine = ({ navigation, userId }) => { // Accept userId from props o
       console.log("Doctor is available, sending request to book...");
       
       // Send POST request to API
-      fetch('http://192.168.1.111:8001/create-tele-doctor/', {
+      fetch(`${BASE_URL}/create-tele-doctor/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ const TeleMedicine = ({ navigation, userId }) => { // Accept userId from props o
 
   // Fetch doctors data from the API
   useEffect(() => {
-    fetch('http://192.168.1.111:8001/doctors/')
+    fetch(`${BASE_URL}/doctors/`)
       .then((response) => response.json())
       .then((data) => {
         setDoctors(data.doctors); // Set the fetched doctors to state
@@ -104,7 +104,7 @@ const TeleMedicine = ({ navigation, userId }) => { // Accept userId from props o
             {/* Profile Image and Details */}
             <View style={styles.profileSection}>
               <Image
-                source={{ uri: `http://192.168.1.111:8001${doctor.profile_photo}` }}
+                source={{ uri: `${BASE_URL}${doctor.profile_photo}` }}
                 style={styles.profilePic}
               />
             </View>

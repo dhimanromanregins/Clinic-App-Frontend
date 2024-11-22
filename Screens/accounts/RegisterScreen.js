@@ -78,23 +78,25 @@ export default function RegisterScreen({ navigation }) {
           );
     }
   };
+  const toggleLanguage = (selectedLanguage) => {
+    setLanguage(selectedLanguage);
+    setIsModalVisible(false);
+  };
 
-  // Text based on the selected language
-  const registerText = language === 'en' ? 'Register' : language === 'es' ? 'Registrarse' : language === 'fr' ? 'S\'inscrire' : 'رجسٹر کریں';
-  const firstParentNameText = language === 'en' ? 'Parent Name(As in UAE ID)' : language === 'es' ? 'Nombre del primer padre (ID de los EAU)' : language === 'fr' ? 'Nom du premier parent (ID des Émirats)' : 'پہلا والدین کا نام (یو اے ای آئی ڈی)';
-  const uaeIdText = language === 'en' ? 'UAE ID Number' : language === 'es' ? 'Número de identificación de los EAU' : language === 'fr' ? 'Numéro d\'identification des EAU' : 'یو اے ای شناختی نمبر';
-  const mobileText = language === 'en' ? 'Mobile Number' : language === 'es' ? 'Número de móvil' : language === 'fr' ? 'Numéro de mobile' : 'موبائل نمبر';
-  const passwordText = language === 'en' ? 'Create Password' : language === 'es' ? 'Crear contraseña' : language === 'fr' ? 'Créer un mot de passe' : 'پاسورڈ بنائیں';
-  const signInText = language === 'en' ? 'Already have an account?' : language === 'es' ? '¿Ya tienes una cuenta?' : language === 'fr' ? 'Vous avez déjà un compte?' : 'کیا آپ کا پہلے سے اکاؤنٹ ہے؟';
-  const signInLinkText = language === 'en' ? 'Login' : language === 'es' ? 'Iniciar sesión' : language === 'fr' ? 'Connexion' : 'لاگ ان';
+  const firstParentNameText = language === 'en' ? 'Parent Name' : language === 'ae' ? 'نام والدین' : 'نام والدین';
+  const uaeIdText = language === 'en' ? 'UAE ID' : language === 'ae' ? 'UAE شناختی' : 'UAE شناختی';
+  const mobileText = language === 'en' ? 'Mobile Number' : language === 'ae' ? 'موبائل نمبر' : 'موبائل نمبر';
+  const passwordText = language === 'en' ? 'Password' : language === 'ae' ? 'پاسورڈ' : 'پاسورڈ';
+  const registerText = language === 'en' ? 'Register' : language === 'ae' ? 'حساب جديد' : 'حساب جديد';
+  const signInText = language === 'en' ? "Already have an account?" : language === 'ae' ? 'کیا آپ کا اکاؤنٹ ہے؟' : 'کیا آپ کا اکاؤنٹ ہے؟';
+  const signInLinkText = language === 'en' ? 'Login' : language === 'ae' ? 'لاگ ان کریں' : 'لاگ ان کریں';
+  
 
-  // Available languages
   const languages = [
     { code: 'en', label: 'English' },
-    { code: 'es', label: 'Español' },
-    { code: 'fr', label: 'Français' },
-    { code: 'ur', label: 'اردو' },
+    { code: 'ae', label: 'اردو' }, 
   ];
+
 
   return (
     <KeyboardAvoidingView

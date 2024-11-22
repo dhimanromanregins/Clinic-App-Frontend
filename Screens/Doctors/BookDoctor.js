@@ -36,9 +36,12 @@ const BookDoctor = ({ navigation }) => {
   }, []);
 
 
+  
+
+
   // Handle navigation to the DoctorProfile page
-  const handleBookAppointment = (doctorId) => {
-    navigation.navigate('Booking', { doctorId });
+  const handleBookAppointment = (doctor_details) => {
+    navigation.navigate('Booking', { doctor_details });
   };
 
   const handleDoctorDetail = (doctorId) => {
@@ -52,6 +55,7 @@ const BookDoctor = ({ navigation }) => {
         <Text style={styles.text}>Book an Appointment</Text>
         <View style={styles.borderLine} />
       </View>
+      
 
       {/* Display loading indicator */}
       {loading ? (
@@ -75,7 +79,7 @@ const BookDoctor = ({ navigation }) => {
               {/* Book Button */}
               <TouchableOpacity
                 style={styles.bookButton}
-                onPress={() => handleBookAppointment(doctor.id)}
+                onPress={() => handleBookAppointment(doctor)}
               >
                 <Text style={styles.bookText}>Book</Text>
               </TouchableOpacity>
