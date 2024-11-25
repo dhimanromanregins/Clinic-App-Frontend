@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView , ToastAndroid} from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; // Import MaterialIcons for language icon
-import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome for the back arrow icon
+import { MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons'; 
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../Actions/Api';
 
 
-const TeleMedicine = ({ navigation, userId }) => { // Accept userId from props or context
+const TeleMedicine = ({ navigation, userId }) => {
   const [doctors, setDoctors] = useState([]);
 
   const handlePress = async (doctor) => {
     const accessToken = await AsyncStorage.getItem('access_token');
-    console.log("Access Token:", accessToken); // Debug log
+    console.log("Access Token:", accessToken); 
   
     if (!accessToken) {
       console.error("No access token found.");

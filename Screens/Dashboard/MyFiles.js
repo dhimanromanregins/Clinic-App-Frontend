@@ -1,20 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Modal , FlatList} from 'react-native';
+import React,{useState, useEffect, useCallback} from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal , FlatList } from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {BASE_URL} from '../../Actions/Api'
 import { useFocusEffect } from '@react-navigation/native';
 
-const ReportsSick = ({ route, navigation }) => {
-  const { childId } = route.params;
-
-  const [childData, setChildData] = useState(null);
-  const [loading, setLoading] = useState(true);
+const MyFiles = ({ navigation }) => {
   const [language, setLanguage] = useState('en');
   const [isModalVisible, setIsModalVisible] = useState(false);
 
 
-  const MyKid = language === 'en' ? 'My Kid' : 'ملف طفلي ';
+  const MyFiles = language === 'en' ? 'My Files' : 'ملفاتي';
   const Reports = language === 'en' ? 'Medical Reports' : 'التقارير الطبيه ';
   const Reports2 = language === 'en' ? 'Reports' : 'التقارير الطبيه ';
   const SickLeave = language === 'en' ? 'Sick Leave' : 'أجازات المرضية';
@@ -32,25 +27,6 @@ const ReportsSick = ({ route, navigation }) => {
       console.error('Error saving language to local storage:', error);
     }
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      const loadSelectedLanguage = async () => {
-        try {
-          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
-          if (savedLanguage) {
-            setLanguage(savedLanguage);
-            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
-          }
-        } catch (error) {
-          console.error('Error loading language from local storage:', error);
-        }
-      };
-
-      loadSelectedLanguage(); // Invoke the function to load the language
-    }, [])
-  );
-
   
   const languages = [
     { code: 'en', label: 'English' },
@@ -58,64 +34,26 @@ const ReportsSick = ({ route, navigation }) => {
   ];
 
   useEffect(() => {
-    const fetchChildDetails = async () => {
+    const fetchBanners = async () => {
       try {
-        const token = await AsyncStorage.getItem('access_token');
-        if (!token) {
-          // Handle missing token, possibly navigate to login page
-          alert('No token found');
-          return;
-        }
+        const response = await fetch(`${BASE_URL}/api/banners/`);
+        const data = await response.json();
 
-        const response = await fetch(`${BASE_URL}/api/children/${childId}/`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
+        const bannerImages = data.map(banner => {
+          return `${BASE_URL}/${banner.image}`; // Construct the full URL for the image
         });
 
-        const data = await response.json();
-        if (response.ok) {
-          setChildData(data);
-        } else {
-          // Handle errors (e.g. child not found, API issues)
-          alert('Failed to fetch child data');
-        }
+        setImages(bannerImages);
       } catch (error) {
-        console.error('Error fetching child details:', error);
-        alert('Error fetching data');
-      } finally {
-        setLoading(false);
+        console.error("Error fetching banners:", error);
       }
     };
 
-    fetchChildDetails();
-  }, [childId]);
-
-  // Calculate age from date of birth
-  const calculateAge = (dob) => {
-    const today = new Date();
-    const birthDate = new Date(dob);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDifference = today.getMonth() - birthDate.getMonth();
-    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
+    fetchBanners();
+  }, []); 
   return (
     <ScrollView style={styles.container}>
-       <Modal
+      <Modal
           visible={isModalVisible}
           transparent={true}
           animationType="fade"
@@ -143,7 +81,6 @@ const ReportsSick = ({ route, navigation }) => {
         <TouchableOpacity onPress={() => setIsModalVisible(true)}>
               <MaterialIcons name="language" size={34} color="white" />
             </TouchableOpacity>
-
         {/* Back Button Icon */}
       </View>
 
@@ -157,32 +94,16 @@ const ReportsSick = ({ route, navigation }) => {
 
       {/* Title Section */}
       <View style={styles.textSection}>
-        <Text style={styles.text}>{Reports2} & {SickLeave}</Text>
+        <Text style={styles.text}>{MyFiles} & {Reports2}</Text>
         <View style={styles.borderLine} />
       </View>
-
-      {/* Child Info */}
-      {childData && (
-        <View style={[styles.card, styles.cardGreen]}>
-          <Image
-            source={childData.gender === 'female' ? require('../../assets/img2.jpg') : require('../../assets/img3.jpg')}
-            style={styles.profileImage}
-          />
-          <View style={styles.cardContent}>
-            <Text style={styles.cardTitle}>{childData.full_name}</Text>
-            <Text style={styles.cardSubtitle}>
-              Age: {childData.date_of_birth} | Grade: {childData.grade}
-            </Text>
-          </View>
-        </View>
-      )}
 
       {/* Buttons Row */}
       <View style={styles.buttonRow}>
         {/* Sick Leave Button */}
         <TouchableOpacity
           style={[styles.button, styles.buttonShadow]}
-          onPress={() => navigation.navigate('MedicalReports',{ childData })}
+          onPress={() => navigation.navigate('MedicalHistory')}
         >
           <Text style={styles.buttonText}>{Reports}</Text>
         </TouchableOpacity>
@@ -190,7 +111,7 @@ const ReportsSick = ({ route, navigation }) => {
         {/* Medical History Button */}
         <TouchableOpacity
           style={[styles.button, styles.buttonShadow]}
-          onPress={() =>navigation.navigate('SickLeaveButton', { childId: childId })}
+          onPress={() => navigation.navigate('SickLeaveRequest')}
         >
           <Text style={styles.buttonText}>{SickLeave}</Text>
         </TouchableOpacity>
@@ -208,7 +129,7 @@ const ReportsSick = ({ route, navigation }) => {
         {/* Parent Sick Leave Button */}
         <TouchableOpacity
           style={[styles.button, styles.buttonShadow]}
-          onPress={() => navigation.navigate('ParentSickLeave')}WhomeItMayCocern
+          onPress={() => navigation.navigate('ParentSickLeave')}
         >
           <Text style={styles.buttonText}>{ParentSickLeave}</Text>
         </TouchableOpacity>
@@ -234,6 +155,7 @@ const ReportsSick = ({ route, navigation }) => {
     </ScrollView>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -254,7 +176,7 @@ const styles = StyleSheet.create({
   },
   textSection: {
     width: '100%',
-    alignItems: 'right',
+    alignItems: 'center',
     marginBottom: 20,
     marginTop: 20,
     paddingLeft: 15,  // Added left padding
@@ -264,7 +186,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#2a4770',
-    textAlign: 'right',  // This is correct for right-aligning the text
   },
   borderLine: {
     height: 4,
@@ -272,58 +193,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignSelf: 'stretch', // Ensures it spans the parent's full width
   },
-  card: {
-    width: '90%',
-    flexDirection: 'row',
-    borderRadius: 10,
-    elevation: 5, // Adds shadow for Android
-    shadowColor: '#000', // Adds shadow for iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    padding: 10,
-    marginBottom: 20,
-    alignItems: 'center',
-
-   marginLeft:18,
- },
-
-  cardGreen: {
-    backgroundColor: 'black', // Green background
-  },
-
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40, // Circular image
-    marginRight: 10,
-  },
-
-  cardContent: {
-    flex: 1,
-    alignItems: 'flex-end', // Align content to the right
-    textAlign: 'right',
-  },
-
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    textAlign: 'right',
-  },
-
-  cardSubtitle: {
-    fontSize: 14,
-    color: '#dddddd',
-    marginTop: 5,
-    textAlign: 'right',
-  },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 30,
-    paddingLeft: 15,  
-    paddingRight: 15, 
+    paddingLeft: 15,  // Added left padding
+    paddingRight: 15, // Added right padding
   },
   button: {
     width: '48%',
@@ -331,23 +206,22 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(24,212,184,255)', 
+    backgroundColor: '#fff', // White background for the buttons
     height: 100,
-    borderWidth: 2,  
-    borderColor: 'rgba(24,212,184,255)', 
+    borderWidth: 2,  // Adds a border around the button
+    borderColor: 'rgba(24,212,184,255)', // Border color to match the text color
   },
   buttonText: {
     fontSize: 18,
-    color: '#2a4770', 
+    color: '#2a4770', // Color of the text
   },
   buttonShadow: {
-    shadowColor: 'rgba(24,212,184,255)', 
-    shadowOffset: { width: 0, height: 4 }, 
-    shadowOpacity: 0.6,  
-    shadowRadius: 5, 
-    elevation: 10, 
+    shadowColor: 'rgba(24,212,184,255)', // Custom shadow color using rgba(24,212,184,255)
+    shadowOffset: { width: 0, height: 4 }, // Vertical offset for the shadow (downwards)
+    shadowOpacity: 0.6,  // Set shadow opacity
+    shadowRadius: 5, // Radius for shadow softness
+    elevation: 10, // Elevation for Android shadow effect
   },
-
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -378,4 +252,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ReportsSick;
+export default MyFiles;

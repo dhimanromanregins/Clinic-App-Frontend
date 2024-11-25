@@ -15,6 +15,12 @@
     "ios": {
       "supportsTablet": true
     },
+    "extra": {
+      "eas": {
+        "projectId": "e7656a48-bf6b-4848-b5e6-54e1af639fdb"
+      }
+    },
+    "owner": "roman_007",
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

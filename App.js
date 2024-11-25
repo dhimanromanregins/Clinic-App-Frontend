@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useEffect , useState, useRef} from 'react'; 
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableOpacity, Image,Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { MaterialIcons } from '@expo/vector-icons'; // For icons
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from 'expo-constants';
 
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginScreen from './Screens/accounts/LoginScreen';
 import RegisterScreen from './Screens/accounts/RegisterScreen';
 import OTPScreen from './Screens/accounts/OTPScreen';
@@ -12,7 +17,7 @@ import LoginOTPScreen from './Screens/accounts/LoginOTPScreen';
 import ForgotScreen from './Screens/accounts/ForgotScreen';
 import ForgetPasswordOTPScreen from './Screens/accounts/ForgetPasswordOTPScreen';
 import ResetPassword from './Screens/accounts/ResetPassword';
-
+import * as SplashScreen from 'expo-splash-screen';
 import Dashboard from './Screens/Dashboard/DashboardScreen';
 import BookDoctor from './Screens/Doctors/BookDoctor';
 import DoctorProfile from "./Screens/Doctors/DoctorProfile"
@@ -21,6 +26,8 @@ import PersonalDetail from './Screens/Dashboard/PersonalDetail';
 
 import Calendar from './Screens/calander/Calendar';
 import MyAccount from './Screens/Dashboard/MyAccount';
+
+import MyFiles from './Screens/Dashboard/MyFiles';
 
 // Childern
 
@@ -42,25 +49,183 @@ import Vaccination from './Screens/Vaccination/Vaccination';
 import MedicalReports from './Screens/Medical/MedicalReports';
 import MedicalHistory from './Screens/Medical/MedicalHistory';
 import BookingConfirm from './Screens/Doctors/BookingConfirm';
+import Setting from './Screens/Dashboard/Setting';
+import Notification from './Screens/Dashboard/Notification';
+import { BASE_URL } from './Actions/Api';
 
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 // Home Screen Component
 function HomeScreen({ navigation }) {
+  const [expoPushToken, setExpoPushToken] = useState('');
+  const notificationListener = useRef();
+  const responseListener = useRef();
+  const [isReady, setIsReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    console.log('Device Token: ', expoPushToken);
+
+    const updateDeviceToken = async () => {
+      if (expoPushToken) {
+        try {
+          // Get the access_token from AsyncStorage
+          const accessToken = await AsyncStorage.getItem('access_token');
+          
+          if (accessToken) {
+            const response = await fetch(`${BASE_URL}/update_user/`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify({
+                devive_token: expoPushToken, 
+              }),
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              console.log('Device Token Updated Successfully:', data);
+            } else {
+              console.error('Failed to update device token:', response.status);
+            }
+          } else {
+            console.log('No access token found in AsyncStorage');
+          }
+        } catch (error) {
+          console.error('Error updating device token:', error);
+        }
+      }
+    };
+
+    updateDeviceToken();
+  }, [expoPushToken]);
+  
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(token => token && setExpoPushToken(token));
+    
+    // Set up listeners for notifications
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      console.log('Notification received in foreground:', notification);
+      // Optionally handle foreground notifications here
+    });
+    
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log('User interacted with the notification:', response);
+    });
+    
+    // if (expoPushToken) {
+    //   console.log(expoPushToken, '000000000000')
+    //   sendPushNotification(expoPushToken);
+    // }
+
+    return () => {
+      notificationListener.current &&
+        Notifications.removeNotificationSubscription(notificationListener.current);
+      responseListener.current &&
+        Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
+  async function registerForPushNotificationsAsync() {
+    let token;
+   
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      try {
+        const projectId =
+          Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+        if (!projectId) {
+          throw new Error('Project ID not found');
+        }
+        token = (
+          await Notifications.getExpoPushTokenAsync({
+            projectId,
+          })
+        ).data;
+      } catch (e) {
+        token = `${e}`;
+      }
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+  
+    return token;
+  }
+
+
+  SplashScreen.preventAutoHideAsync();
+
+  const prepare = async () => {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 3000)); // Simulate loading time
+      const token = await AsyncStorage.getItem('access_token');
+      if (token) {
+        navigation.replace('Dashboard'); // Use replace to avoid going back to the splash screen
+      } else {
+        navigation.replace('Login');
+      }
+    } catch (error) {
+      console.error('Error during prepare:', error);
+    } finally {
+      setIsReady(true);
+      setIsLoading(false);
+      SplashScreen.hideAsync(); // Hide the splash screen
+    }
+  };
+
+  useEffect(() => {
+    prepare();
+  }, []);
+
+
+  
+
+  if (!isReady) {
+    return null; 
+  }
+
+  if (isLoading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#2a4770" />
+        <Text style={styles.loadingText}>Preparing your experience...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text>Welcome to the Home Screen!</Text>
-      <Button
-        title="Go to Login"
-        onPress={() => navigation.navigate('Login')}
-      />
-      <Button
-        title="Go to Dashboard"
-        onPress={() => navigation.navigate('Dashboard')}
-      />
-      <StatusBar style="auto" />
-    </View>
+    <Text>Welcome to the Home Screen!</Text>
+    <StatusBar style="auto" />
+  </View>
   );
 }
 
@@ -310,6 +475,30 @@ export default function App() {
          <Stack.Screen
           name="BookingConfirm"
           component={BookingConfirm}
+          options={{
+            headerShown: false,
+            
+          }}
+        />
+        <Stack.Screen
+          name="MyFiles"
+          component={MyFiles}
+          options={{
+            headerShown: false,
+            
+          }}
+        />
+        <Stack.Screen
+          name="Setting"
+          component={Setting}
+          options={{
+            headerShown: false,
+            
+          }}
+        />
+        <Stack.Screen
+          name="Notification"
+          component={Notification}
           options={{
             headerShown: false,
             

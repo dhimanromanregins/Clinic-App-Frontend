@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal,Image, Dimensions, FlatList } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BASE_URL } from "../../Actions/Api"
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const Dashboard = ({ navigation }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);  // State to track the current index
-  const [images, setImages] = useState([]);  // State to store banner images
+  const [currentIndex, setCurrentIndex] = useState(0);  
+  const [images, setImages] = useState([]);
   const [language, setLanguage] = useState('en');
   const [isModalVisible, setIsModalVisible] = useState(false);
-
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  
+  const MyFiles = language === 'en' ? 'My Kid Files' : 'ملفات طفلي';
   const Booking = language === 'en' ? 'Book Medical Consultation' : 'حجز موعد';
   const Mykids = language === 'en' ? 'My kids' : 'أطفالي';
   const Telemedicine = language === 'en' ? 'Tele medicine' : 'العلاج عن بعد';
@@ -18,12 +23,16 @@ const Dashboard = ({ navigation }) => {
   const ContactUs = language === 'en' ? 'Contact Us' : 'معلومات العيادة';
   const MyKids = language === 'en' ? 'Reports' : 'التقارير و الملفات';
 
-  const toggleLanguage = (selectedLanguage) => {
-    setLanguage(selectedLanguage);
-    setIsModalVisible(false); 
+  const toggleLanguage = async (selectedLanguage) => {
+    try {
+      setLanguage(selectedLanguage);
+      await AsyncStorage.setItem('selectedLanguage', selectedLanguage);
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error('Error saving language to local storage:', error);
+    }
   };
 
-  
   const languages = [
     { code: 'en', label: 'English' },
     { code: 'ur', label: 'اردو' },
@@ -46,9 +55,76 @@ const Dashboard = ({ navigation }) => {
     };
 
     fetchBanners();
-  }, []); // Empty dependency array to run only once when the component mounts
+  }, []); 
 
-  // Function to handle the change in current index
+
+  const getAccessToken = async () => {
+    try {
+      return await AsyncStorage.getItem('access_token');
+    } catch (error) {
+      console.error('Error getting access token:', error);
+      return null;
+    }
+  };
+
+  const fetchNotifications = async () => {
+    const token = await getAccessToken();
+
+    if (!token) {
+      Alert.alert('Error', 'Access token is missing.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BASE_URL}/notifications/`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // Filter unread notifications
+        const unreadCount = data.filter((notification) => !notification.is_read).length;
+
+        // Update states
+        setNotifications(data);
+        setUnreadCount(unreadCount);
+      } else {
+        Alert.alert('Error', 'Failed to fetch notifications.');
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Use effect to fetch notifications when the component mounts
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
   const handleNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
@@ -102,8 +178,9 @@ const Dashboard = ({ navigation }) => {
             <TouchableOpacity onPress={() => setIsModalVisible(true)}>
               <MaterialIcons name="language" size={34} color="white" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => alert('Notifications clicked')}>
+            <TouchableOpacity style={styles.notificationicon} onPress={() => navigation.navigate('Notification')}>
               <MaterialIcons name="notifications" size={34} color="white" />
+              {unreadCount >= 1 && <Text style={styles.topIcons}>{unreadCount}</Text>}
             </TouchableOpacity>
           </View>
           <View style={styles.rightHeaderIcons}>
@@ -161,9 +238,9 @@ const Dashboard = ({ navigation }) => {
           </TouchableOpacity>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('kids')}>
+            <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('MyFiles')}>
               <MaterialIcons name="folder" size={34} color="#2a4770" />
-              <Text style={styles.iconButtonText}>My Kids Files</Text>
+              <Text style={styles.iconButtonText}>{MyFiles}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Calendar')}>
               <MaterialIcons name="calendar-today" size={34} color="#2a4770" />
@@ -214,6 +291,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     width: '50%',
+    
   },
   rightHeaderIcons: {
     flexDirection: 'row',
@@ -332,6 +410,17 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
   },
+  notificationicon:{
+    position:'relative',
+  },
+  topIcons:{
+position:'absolute',
+top:'-8',
+left:'20',
+color:'red',
+fontSize:20,
+fontWeight:600
+  }
 });
 
 export default Dashboard;

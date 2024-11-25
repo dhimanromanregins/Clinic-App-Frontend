@@ -1,42 +1,88 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect,useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image , Modal, FlatList} from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; // For icons
+import { MaterialIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const PersonalDetail = ({ navigation }) => {
-    // Set up state for form inputs
     const [myDetails, setMyDetails] = useState('');
     const [bookingHistory, setBookingHistory] = useState('');
     const [myKids, setMyKids] = useState('');
     const [language, setLanguage] = useState('en');
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    // Handler for button clicks (just logs for now)
     const handleButtonClick = (field) => {
         navigation.navigate('MyAccount')
-        // You can later implement any specific functionality for each button
+
     };
     const handleButtonClickBooking = (field) => {
         navigation.navigate('MedicalHistory')
-        // You can later implement any specific functionality for each button
+
     };
 
-    const Booking = language === 'en' ? 'Book Medical Consultation' : 'حجز موعد';
+    const handleButtonClickSetting = (field) => {
+      navigation.navigate('Setting')
+
+  };
+
+    const PersonalProfile = language === 'en' ? 'Personal Profile' : 'الملف الشخصي';
+    const ContactDetails = language === 'en' ? 'Contact Details' : 'معلومات التواصل';
+    const MyDetails = language === 'en' ? 'My Details' : 'تفاصيلي';
     const Mykids = language === 'en' ? 'My kids' : 'أطفالي';
-    const Telemedicine = language === 'en' ? 'Tele medicine' : 'العلاج عن بعد';
-    const Calendar = language === 'en' ? 'Calendar' : 'مواعيد العيادة';
-    const ContactUs = language === 'en' ? 'Contact Us' : 'معلومات العيادة';
-    const MyKids = language === 'en' ? 'Reports' : 'التقارير و الملفات';
+    const BookingHistory = language === 'en' ? 'My kids' : 'تاريخ الحجز';
+    // const Calendar = language === 'en' ? 'Calendar' : 'مواعيد العيادة';
+    // const ContactUs = language === 'en' ? 'Contact Us' : 'معلومات العيادة';
+    // const MyKids = language === 'en' ? 'Reports' : 'التقارير و الملفات';
   
-    const toggleLanguage = (selectedLanguage) => {
-      setLanguage(selectedLanguage);
-      setIsModalVisible(false); 
+    const toggleLanguage = async (selectedLanguage) => {
+      try {
+        setLanguage(selectedLanguage);
+        await AsyncStorage.setItem('selectedLanguage', selectedLanguage); 
+        console.log(`Language updated to: ${selectedLanguage}`); 
+        setIsModalVisible(false);
+      } catch (error) {
+        console.error('Error saving language to local storage:', error);
+      }
     };
+
+    useFocusEffect(
+      useCallback(() => {
+        const loadSelectedLanguage = async () => {
+          try {
+            const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+            if (savedLanguage) {
+              setLanguage(savedLanguage);
+              console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+            }
+          } catch (error) {
+            console.error('Error loading language from local storage:', error);
+          }
+        };
+  
+        loadSelectedLanguage(); // Invoke the function to load the language
+      }, [])
+    );
   
     
     const languages = [
       { code: 'en', label: 'English' },
       { code: 'ur', label: 'اردو' },
     ];
+
+    useEffect(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+  
+      loadSelectedLanguage();
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -65,7 +111,7 @@ const PersonalDetail = ({ navigation }) => {
         </Modal>
             {/* Header Section with Language Switcher */}
             <View style={styles.header}>
-                <TouchableOpacity style={styles.languageIcon} onPress={() => alert('Language switch clicked')}>
+                <TouchableOpacity style={styles.languageIcon} onPress={() => setIsModalVisible(true)}>
                     <MaterialIcons name="language" size={34} color="white" />
                 </TouchableOpacity>
             </View>
@@ -80,7 +126,7 @@ const PersonalDetail = ({ navigation }) => {
 
             {/* Page Title */}
             <View style={styles.headerWrapper}>
-                <Text style={styles.header}>Personal</Text>
+                <Text style={styles.header}>{PersonalProfile}</Text>
             </View>
 
             {/* Border Line */}
@@ -91,20 +137,25 @@ const PersonalDetail = ({ navigation }) => {
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => handleButtonClick('My Details')}>
-                    <Text style={styles.buttonText}>My Details</Text>
+                    <Text style={styles.buttonText}>{MyDetails}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => handleButtonClickBooking('Booking History')}>
-                    <Text style={styles.buttonText}>Booking History</Text>
+                    <Text style={styles.buttonText}>{BookingHistory}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => navigation.navigate('kids')}
                 >
-                    <Text style={styles.buttonText}>My Kids</Text>
+                    <Text style={styles.buttonText}>{Mykids}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => handleButtonClickSetting('Setting')}>
+                    <Text style={styles.buttonText}>Settings</Text>
                 </TouchableOpacity>
             </View>
         </View>

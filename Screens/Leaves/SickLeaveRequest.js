@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import BASE_URL from '../../Actions/Api'
+import { BASE_URL } from '../../Actions/Api';
 const SickLeaveRequest = ({ navigation }) => {
   const [children, setChildren] = useState([]);
   const [selectedChild, setSelectedChild] = useState(null);
@@ -16,6 +16,7 @@ const SickLeaveRequest = ({ navigation }) => {
     const fetchChildren = async () => {
       try {
         const token = await AsyncStorage.getItem('access_token');
+        console.log(`${BASE_URL}/children/`, '-------------')
         console.log(token, '--------')
         const response = await fetch(`${BASE_URL}/children/`, {
           headers: {

@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Image, ToastAndroid } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons'; // For icons
-import { FontAwesome } from '@expo/vector-icons'; // For the back arrow icon
-import { LinearGradient } from 'expo-linear-gradient'; // Import LinearGradient from expo-linear-gradient
+import { MaterialIcons } from '@expo/vector-icons'; 
+import { FontAwesome } from '@expo/vector-icons'; 
+import { LinearGradient } from 'expo-linear-gradient'; 
 import { BASE_URL } from '../../Actions/Api';
 const Calendar = () => {
   const [doctors, setDoctors] = useState([]);
 
   useEffect(() => {
-    // Fetch the doctors' availability data from the API
-    fetch(`${BASE_URL}/api/doctors-availability/?date=2024-11-21`)
+    const currentDate = new Date().toISOString().split('T')[0];
+    fetch(`${BASE_URL}/api/doctors-availability/?date=${currentDate}`)
       .then((response) => response.json())
       .then((data) => {
-        // Update the state with the fetched data
         setDoctors(data);
       })
       .catch((error) => {
-        // Show an error message if the fetch fails
         ToastAndroid.show('Error fetching doctors data', ToastAndroid.SHORT);
       });
   }, []);
