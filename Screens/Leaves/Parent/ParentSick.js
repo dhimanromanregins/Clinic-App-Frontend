@@ -98,6 +98,8 @@ const ParentSick = ({ navigation }) => {
             placeholder="Enter Parent Name" 
             value={parentName}
             onChangeText={setParentName}
+            placeholderTextColor="#fff" // Change placeholder color here
+            color="#fff"
           />
         </View>
 
@@ -111,6 +113,8 @@ const ParentSick = ({ navigation }) => {
                 placeholder={`Enter Kid's Name`}
                 value={kid.name}
                 onChangeText={(value) => handleInputChange(index, value)}
+                placeholderTextColor="#fff" // Change placeholder color here
+                color="#fff"
               />
               {index !== 0 && (
                 <TouchableOpacity 
@@ -138,6 +142,8 @@ const ParentSick = ({ navigation }) => {
               placeholder="Enter To" 
               value={sentTo}
               onChangeText={setSentTo}
+              placeholderTextColor="#fff" // Change placeholder color here
+              color="#fff"
             />
           </View>
           <View style={styles.inputGroupHalf}>
@@ -147,6 +153,8 @@ const ParentSick = ({ navigation }) => {
               placeholder="Enter From" 
               value={sender}
               onChangeText={setSender}
+              placeholderTextColor="#fff" // Change placeholder color here
+              color="#fff"
             />
           </View>
         </View>

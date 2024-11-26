@@ -165,7 +165,7 @@ const ReportsSick = ({ route, navigation }) => {
       {childData && (
         <View style={[styles.card, styles.cardGreen]}>
           <Image
-            source={childData.gender === 'female' ? require('../../assets/img2.jpg') : require('../../assets/img3.jpg')}
+            source={childData.gender === 'female' ? require('../../assets/boy.jpg') : require('../../assets/girl.jpg')}
             style={styles.profileImage}
           />
           <View style={styles.cardContent}>

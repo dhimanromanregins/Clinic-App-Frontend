@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   registerButton: {
-    backgroundColor: '#24d4b8',
+    backgroundColor: '#2a4770',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 5,
@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
     marginBottom: 10, // Reduced gap after register button
   },
   registerButtonText: {
-    color: '#2a4770',
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
   },

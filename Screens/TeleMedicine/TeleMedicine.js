@@ -197,6 +197,10 @@ const styles = StyleSheet.create({
     position: 'relative',
 
   },
+  availableSection:{
+    width:'200',
+  
+  },
   profileSection: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -215,7 +219,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 30,
     borderRadius: 50,
-    marginTop: 60,
+    marginTop: 20,
     marginRight: 30,
   },
   bookText: {

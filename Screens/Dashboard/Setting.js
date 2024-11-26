@@ -144,7 +144,7 @@ const Setting = ({ navigation }) => {
             <Text style={styles.buttonText}>English</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => toggleLanguage('ur')} style={[styles.languageButtonEnglish, language === 'ur' && styles.languageButtonArabic]}>
-            <Text style={styles.buttonText}>{Arabic}</Text>
+            <Text style={styles.buttonText}>العربية</Text>
           </TouchableOpacity>
         </View>
 

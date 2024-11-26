@@ -58,8 +58,8 @@ const MyKids = ({ route, navigation }) => {
   // Safely check for the gender before calling toLowerCase
   const genderImage = kidDetails.gender
     ? (kidDetails.gender.toLowerCase() === 'female'
-      ? require('../../assets/img4.jpg')
-      : require('../../assets/img3.jpg'))
+      ? require('../../assets/girl.jpg')
+      : require('../../assets/boy.jpg'))
     : null;
 
   // Conditionally apply styles based on gender

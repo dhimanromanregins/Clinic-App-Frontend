@@ -103,12 +103,14 @@ const WhomeItMayCocern = ({ navigation }) => {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Concern</Text>
+          
           <TextInput 
             style={styles.input} 
-            placeholder="Enter Concern" 
+            placeholder="Enter Text" 
             value={concern} // Bind to concern state
             onChangeText={setConcern}  // Update concern state
+            placeholderTextColor="#fff" 
+            color="#fff"
           />
         </View>
 
@@ -119,6 +121,8 @@ const WhomeItMayCocern = ({ navigation }) => {
             placeholder="Enter Parent Name " 
             value={ParentName} // Bind to concern state
             onChangeText={setParentName}  // Update concern state
+            placeholderTextColor="#fff" // Change placeholder color here
+            color="#fff"
           />
         </View>
 
@@ -132,6 +136,8 @@ const WhomeItMayCocern = ({ navigation }) => {
                 placeholder="Enter Kid's Name"
                 value={kid.name}
                 onChangeText={(value) => handleInputChange(index, value)}
+                placeholderTextColor="#fff" // Change placeholder color here
+                color="#fff"
               />
               {index !== 0 && (
                 <TouchableOpacity 
@@ -159,6 +165,8 @@ const WhomeItMayCocern = ({ navigation }) => {
               placeholder="Enter To" 
               value={sentTo}
               onChangeText={setSentTo}
+              placeholderTextColor="#fff" // Change placeholder color here
+              color="#fff"
             />
           </View>
           <View style={styles.inputGroupHalf}>
@@ -168,6 +176,8 @@ const WhomeItMayCocern = ({ navigation }) => {
               placeholder="Enter From" 
               value={sender}
               onChangeText={setSender}
+              placeholderTextColor="#fff" // Change placeholder color here
+              color="#fff"
             />
           </View>
         </View>
@@ -180,6 +190,7 @@ const WhomeItMayCocern = ({ navigation }) => {
             placeholder="Add your additional notes" 
             value={additionalNotes} // Bind to additionalNotes state
             onChangeText={setAdditionalNotes} // Update additionalNotes state
+            placeholderTextColor="#fff" // Change placeholder color here
           />
         </View>
 

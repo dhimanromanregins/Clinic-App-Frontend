@@ -39,8 +39,8 @@ const Vaccination = ({ navigation, route }) => {
     <Image
                   source={
                     kidDetails.gender.toLowerCase() === 'female'
-                      ? require('../../assets/img4.jpg')
-                      : require('../../assets/img3.jpg')
+                      ? require('../../assets/girl.jpg')
+                      : require('../../assets/boy.jpg')
                   }
                   style={styles.profileImage}
                 />

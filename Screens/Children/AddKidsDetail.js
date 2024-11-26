@@ -312,6 +312,7 @@ const styles = StyleSheet.create({
   picker: {
     height: 58, // Ensure the Picker is properly sized
     width: '100%',
+    color:'#fff',
   },
 });
 

@@ -72,25 +72,33 @@ const Calendar = () => {
                 end={{ x: 1, y: 0 }} // Gradient direction is horizontal
                 style={styles.card}
               >
-                <View style={styles.cardContent}>
-                  {/* Profile Picture */}
-                  <Image
-                    source={{ uri: `${BASE_URL}${doctor.profile_photo}` }} // Use base URL for the image
-                    style={styles.profilePicture}
-                  />
+          
+<View style={styles.cardContent}>
+  {/* Profile Picture */}
+  <Image
+    source={{ uri: `${BASE_URL}${doctor.profile_photo}` }} // Use base URL for the image
+    style={styles.profilePicture}
+  />
 
-                  {/* Doctor Details */}
-                  <View style={styles.doctorDetails}>
-                    <Text style={styles.doctorName}>{doctor.name}</Text>
-                    <Text style={styles.specialty}>{doctor.specialty}</Text>
-                    <View style={styles.bookingTimeSection}>
-                      <Text style={styles.bookingTime}>{morningStart}AM</Text>
-                      <MaterialIcons name="arrow-forward" size={20} color="#2a4770" style={styles.arrowIcon} />
-                      <Text style={styles.bookingTime}> {afternoonEnd}PM</Text>
-                    </View>
-                   
-                  </View>
-                </View>
+  {/* Doctor Details */}
+  <View style={styles.doctorDetails}>
+    <Text style={styles.doctorName}>{doctor.name}</Text>
+    <Text style={styles.specialty}>{doctor.specialty}</Text>
+    <View style={styles.bookingTimeSection}>
+      <Text style={styles.bookingTime}>{morningStart}AM</Text>
+      <MaterialIcons name="arrow-forward" size={20} color="#2a4770" style={styles.arrowIcon} />
+      <Text style={styles.bookingTime}>{afternoonEnd}PM</Text>
+    </View>
+  </View>
+
+  {/* Profile Icon Button */}
+  <TouchableOpacity 
+    style={styles.profileIconContainer} 
+    onPress={() => navigation.navigate('Profile')} // Replace 'Profile' with your profile screen name
+  >
+    <MaterialIcons name="account-circle" size={30} color="#2a4770" />
+  </TouchableOpacity>
+</View>
               </LinearGradient>
               <View style={styles.cardSeparator} />
             </React.Fragment>
@@ -190,6 +198,13 @@ const styles = StyleSheet.create({
     right: 10,
     borderRadius: 5,
     zIndex: 100, // Ensure the name is displayed on top of other elements
+  },
+  profileIconContainer: {
+    position: 'absolute',
+    right: -18,
+    top: '50%',
+    transform: [{ translateY: -15 }],
+  
   },
   bookingTimeSection: {
     flexDirection: 'row', // Align the times and arrow horizontally

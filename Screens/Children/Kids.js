@@ -78,8 +78,8 @@ const Kids = ({ navigation }) => {
                 <Image
                   source={
                     kid.gender.toLowerCase() === 'female'
-                      ? require('../../assets/img4.jpg')
-                      : require('../../assets/img3.jpg')
+                      ? require('../../assets/girl.jpg')
+                      : require('../../assets/boy.jpg')
                   }
                   style={styles.profileImage}
                 />
@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: '#f9f9f9',
+    marginTop:50
   },
   header: {
     width: '100%',
@@ -143,7 +144,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   backButton: {
-    padding: 10,
+    position: 'absolute', // This will allow us to position the button absolutely within the parent
+    top: 10, // Adjust the distance from the top edge
+    left: 10, // Adjust the distance from the left edge
+    zIndex: 1,
   },
   scrollView: {
     flex: 1,

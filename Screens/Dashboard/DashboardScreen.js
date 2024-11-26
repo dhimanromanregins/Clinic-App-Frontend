@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal,Image, Dimensions, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, Modal,Image,ImageBackground, Dimensions, FlatList } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { BASE_URL } from "../../Actions/Api"
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -20,8 +20,9 @@ const Dashboard = ({ navigation }) => {
   const Mykids = language === 'en' ? 'My kids' : 'أطفالي';
   const Telemedicine = language === 'en' ? 'Tele medicine' : 'العلاج عن بعد';
   const Calendar = language === 'en' ? 'Calendar' : 'مواعيد العيادة';
-  const ContactUs = language === 'en' ? 'Contact Us' : 'معلومات العيادة';
+  const ContactUs = language === 'en' ? 'Contact Us' : 'معلومات العيادة';  
   const MyKids = language === 'en' ? 'Reports' : 'التقارير و الملفات';
+  const Review = language === 'en' ? 'Review' : 'مراجعة';
 
   const toggleLanguage = async (selectedLanguage) => {
     try {
@@ -35,7 +36,7 @@ const Dashboard = ({ navigation }) => {
 
   const languages = [
     { code: 'en', label: 'English' },
-    { code: 'ur', label: 'اردو' },
+    { code: 'ur', label: 'العربية' },
   ];
   // Fetch banners from the API using fetch
   useEffect(() => {
@@ -148,6 +149,7 @@ const Dashboard = ({ navigation }) => {
   };
 
   return (
+    
     <ScrollView style={styles.container}>
        <Modal
           visible={isModalVisible}
@@ -173,6 +175,10 @@ const Dashboard = ({ navigation }) => {
           </View>
         </Modal>
       <View style={styles.container}>
+      {/* <ImageBackground
+    source={require('./../../assets/back-bg.jpg')} // Path to your background image
+    style={styles.backgroundImage} // Apply the style to make sure the image covers the entire background
+  > */}
         {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.leftHeaderIcons}>
@@ -261,21 +267,36 @@ const Dashboard = ({ navigation }) => {
               <MaterialIcons name="video-call" size={34} color="#2a4770" />
               <Text style={styles.iconButtonText}>{Telemedicine}</Text>
             </TouchableOpacity>
+            <TouchableOpacity 
+                style={styles.iconButton} 
+                onPress={() => navigation.navigate('Review')} // Navigate to Review screen
+            >
+                <MaterialIcons name="rate-review" size={34} color="#2a4770" />
+                <Text style={styles.iconButtonText}>{Review}</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.iconButton} onPress={() =>  navigation.navigate('Contact')}>
               <MaterialIcons name="phone" size={34} color="#2a4770" />
               <Text style={styles.iconButtonText}>{ContactUs}</Text>
             </TouchableOpacity>
           </View>
         </View>
+        {/* </ImageBackground> */}
       </View>
+      
     </ScrollView>
+    
   );
 };
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f4f4f4',
+    backgroundColor: 'transparent',
   },
   header: {
     width: '100%',
