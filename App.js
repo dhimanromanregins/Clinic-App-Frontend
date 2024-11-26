@@ -1,14 +1,12 @@
 import React, { useEffect , useState, useRef} from 'react'; 
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, TouchableOpacity, Image,Platform } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableOpacity, Image,Platform , ActivityIndicator} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { MaterialIcons } from '@expo/vector-icons'; // For icons
+import { MaterialIcons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
-
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginScreen from './Screens/accounts/LoginScreen';
 import RegisterScreen from './Screens/accounts/RegisterScreen';
@@ -23,14 +21,10 @@ import BookDoctor from './Screens/Doctors/BookDoctor';
 import DoctorProfile from "./Screens/Doctors/DoctorProfile"
 import AddDetail from './Screens/Doctors/AddDetail';
 import PersonalDetail from './Screens/Dashboard/PersonalDetail';
-
 import Calendar from './Screens/calander/Calendar';
 import MyAccount from './Screens/Dashboard/MyAccount';
-
 import MyFiles from './Screens/Dashboard/MyFiles';
-
 // Childern
-
 import MyKids from './Screens/Children/Mykids';
 import Kids from './Screens/Children/Kids';
 import AddKidsDetail from './Screens/Children/AddKidsDetail';
@@ -43,7 +37,7 @@ import ParentSick from './Screens/Leaves/Parent/ParentSick';
 import ParentSickLeave from './Screens/Leaves/Parent/ParentSickLeave';
 import ParentSickLeaveHistory from './Screens/Leaves/Parent/ParentSickLeaveHistory';
 import WhomeItMayCocern from './Screens/Leaves/Cocern/WhomeItMayCocern';
-
+import Contact from './Screens/Dashboard/Contact';
 import TeleDoctor from './Screens/TeleMedicine/TeleDoctor';
 import Vaccination from './Screens/Vaccination/Vaccination';
 import MedicalReports from './Screens/Medical/MedicalReports';
@@ -70,11 +64,12 @@ function HomeScreen({ navigation }) {
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  useEffect(() => {0
     console.log('Device Token: ', expoPushToken);
 
     const updateDeviceToken = async () => {
       if (expoPushToken) {
+        console.log(expoPushToken, '000000000')
         try {
           // Get the access_token from AsyncStorage
           const accessToken = await AsyncStorage.getItem('access_token');
@@ -87,7 +82,7 @@ function HomeScreen({ navigation }) {
                 'Authorization': `Bearer ${accessToken}`,
               },
               body: JSON.stringify({
-                devive_token: expoPushToken, 
+                device_token: expoPushToken, 
               }),
             });
 
@@ -206,28 +201,24 @@ function HomeScreen({ navigation }) {
   }, []);
 
 
+
+  if (isLoading) {
+    // Show activity indicator while loading
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   
 
   if (!isReady) {
     return null; 
   }
-
-  if (isLoading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#2a4770" />
-        <Text style={styles.loadingText}>Preparing your experience...</Text>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.container}>
-    <Text>Welcome to the Home Screen!</Text>
-    <StatusBar style="auto" />
-  </View>
-  );
+  return <View style={styles.container}></View>;
 }
+
 
 // Create a Stack Navigator
 const Stack = createStackNavigator();
@@ -237,19 +228,15 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Home"
-        screenOptions={{
-          headerTintColor: '#2a4770', // Set the back icon color globally
-          headerTitleStyle: {
-            color: '#2a4770', // Default header text color
-            fontWeight: 'bold',
-          },
-          headerStyle: {
-            backgroundColor: '#fff', // Set background color for header
-            elevation: 0, // Remove shadow
-          },
+        options={{
+          headerShown: false,
         }}
       >
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ headerShown: false }} // This line removes the header
+        />
 
         <Stack.Screen
           name="Login"
@@ -504,6 +491,14 @@ export default function App() {
             
           }}
         />
+         <Stack.Screen
+          name="Contact"
+          component={Contact}
+          options={{
+            headerShown: false,
+            
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -512,9 +507,14 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
 
 });

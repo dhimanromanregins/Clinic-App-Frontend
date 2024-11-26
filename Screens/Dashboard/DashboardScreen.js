@@ -45,7 +45,7 @@ const Dashboard = ({ navigation }) => {
         const data = await response.json();
 
         const bannerImages = data.map(banner => {
-          return `${BASE_URL}/${banner.image}`; // Construct the full URL for the image
+          return `${BASE_URL}${banner.image}`; // Construct the full URL for the image
         });
 
         setImages(bannerImages);
@@ -57,6 +57,7 @@ const Dashboard = ({ navigation }) => {
     fetchBanners();
   }, []); 
 
+  console.log(images, '-----------------------')
 
   const getAccessToken = async () => {
     try {
@@ -260,7 +261,7 @@ const Dashboard = ({ navigation }) => {
               <MaterialIcons name="video-call" size={34} color="#2a4770" />
               <Text style={styles.iconButtonText}>{Telemedicine}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton} onPress={() => alert('Contact Us clicked')}>
+            <TouchableOpacity style={styles.iconButton} onPress={() =>  navigation.navigate('Contact')}>
               <MaterialIcons name="phone" size={34} color="#2a4770" />
               <Text style={styles.iconButtonText}>{ContactUs}</Text>
             </TouchableOpacity>

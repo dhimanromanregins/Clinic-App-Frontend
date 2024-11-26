@@ -2,18 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, TextInput, Alert } from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../../Actions/Api';
 
 const MyAccount = ({ navigation }) => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [editMode, setEditMode] = useState(false); // New state to toggle edit mode
-    const [updatedProfile, setUpdatedProfile] = useState({}); // Store edited profile data
+    const [editMode, setEditMode] = useState(false);
+    const [updatedProfile, setUpdatedProfile] = useState({});
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const accessToken = await AsyncStorage.getItem('access_token');
-
                 if (accessToken) {
                     const response = await fetch(`${BASE_URL}/api/profile/`, {
                         method: 'GET',
@@ -26,7 +26,7 @@ const MyAccount = ({ navigation }) => {
                     if (response.ok) {
                         const data = await response.json();
                         setProfile(data);
-                        setUpdatedProfile(data); // Initialize the updatedProfile with current profile data
+                        setUpdatedProfile(data);
                     } else {
                         Alert.alert('Error', 'Failed to fetch profile details');
                     }
@@ -40,7 +40,6 @@ const MyAccount = ({ navigation }) => {
                 setLoading(false);
             }
         };
-
         fetchProfile();
     }, []);
 

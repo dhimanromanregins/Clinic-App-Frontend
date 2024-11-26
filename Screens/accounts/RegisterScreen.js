@@ -54,28 +54,38 @@ export default function RegisterScreen({ navigation }) {
     };
   
     try {
-        setLoading(true);
-        const response = await fetch(`${BASE_URL}/register/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        });
+      setLoading(true);
+      const response = await fetch(`${BASE_URL}/register/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      setLoading(false);
+      console.log(response, '---------------------')
+      // Check if the response is successful
+      if (response.ok) {
+        const responseData = await response.json(); // Parse JSON response
+        console.log(responseData, "666666666666666");
+        ToastAndroid.showWithGravity(
+          'OTP is sent to your Mobile Number: ' + responseData?.message,
+          ToastAndroid.LONG,
+          ToastAndroid.TOP
+        );
+        navigation.navigate('OTP'); // Navigate to OTP screen
+      } else {
+        // Handle non-success responses
+        const errorData = await response.json(); // Parse error details
+        throw new Error(errorData.message || 'Registration failed: Phone Number Already exist');
+      }
+    } catch (error) {
       setLoading(false);
       ToastAndroid.showWithGravity(
-      'OTP is sent to you Mobile Number' + response.data?.message,
-      ToastAndroid.LONG,
-      ToastAndroid.TOP
-    );
-    navigation.navigate('OTP')
-    } catch (error) {
-        setLoading(false);
-        ToastAndroid.showWithGravity(
-            'Registration Failed: ' + (error.response?.data?.message || error.message),
-            ToastAndroid.LONG,
-            ToastAndroid.BOTTOM
-          );
+        'Registration Failed: ' + (error.message || 'Unknown error'),
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM
+      );
     }
   };
   const toggleLanguage = (selectedLanguage) => {

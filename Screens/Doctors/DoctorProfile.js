@@ -6,6 +6,10 @@ const DoctorProfile = ({ route, navigation }) => {
   const { doctorId } = route.params;  // Assuming doctorId is passed from the previous screen
   const [doctor, setDoctor] = useState(null);
 
+  const handleDoctorDetail = (doctor_details) => {
+    navigation.navigate('Booking', { doctor_details });
+  };
+
   // Fetch doctor details based on the doctorId
   useEffect(() => {
     fetch(`${BASE_URL}/doctors/${doctorId}`)
@@ -56,7 +60,6 @@ const DoctorProfile = ({ route, navigation }) => {
           <Text style={styles.bioText}>Location: {doctor.location.city}</Text>
           <Text style={styles.bioText}>Languages: {doctor.languages.map(lang => lang.language).join(', ')}</Text>
           <Text style={styles.bioText}>Registration ID: {doctor.registration_id}</Text>
-          <Text style={styles.bioText}>Price: ₹{doctor.price}</Text>
           <Text style={styles.bioText}>Available for Digital Consult: {doctor.digital_consult ? 'Yes' : 'No'}</Text>
           <Text style={styles.bioText}>Available for Hospital Visit: {doctor.hospital_visit ? 'Yes' : 'No'}</Text>
         </View>
@@ -64,7 +67,7 @@ const DoctorProfile = ({ route, navigation }) => {
 
       <TouchableOpacity
         style={styles.bookButton}
-        onPress={() => navigation.navigate('BookingScreen', { doctor })} // Pass doctor data to booking screen
+        onPress={() => handleDoctorDetail(doctor)} 
       >
         <Text style={styles.bookButtonText}>Book Appointment</Text>
       </TouchableOpacity>

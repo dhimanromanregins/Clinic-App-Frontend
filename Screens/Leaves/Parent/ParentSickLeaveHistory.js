@@ -76,7 +76,7 @@ const ParentSickLeaveHistory = ({ navigation }) => {
       <ScrollView style={styles.container}>
         {/* Title Section */}
         <View style={styles.textSection}>
-          <Text style={styles.text}>Sick Leave</Text>
+          <Text style={styles.text}>Sick Leave History</Text>
           <View style={styles.borderLine} />
         </View>
 

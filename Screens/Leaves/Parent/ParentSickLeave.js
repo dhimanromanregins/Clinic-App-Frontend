@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { BASE_URL } from '../../../Actions/Api';
 
 const ParentSickLeave = ({ navigation }) => {
   return (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView , ToastAndroid} from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ToastAndroid } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { FontAwesome } from '@expo/vector-icons'; 
+import { FontAwesome } from '@expo/vector-icons';
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '../../Actions/Api';
@@ -12,16 +12,16 @@ const TeleMedicine = ({ navigation, userId }) => {
 
   const handlePress = async (doctor) => {
     const accessToken = await AsyncStorage.getItem('access_token');
-    console.log("Access Token:", accessToken); 
-  
+    console.log("Access Token:", accessToken);
+
     if (!accessToken) {
       console.error("No access token found.");
       return;
     }
-    
+
     if (doctor.is_available) {
       console.log("Doctor is available, sending request to book...");
-      
+
       // Send POST request to API
       fetch(`${BASE_URL}/create-tele-doctor/`, {
         method: 'POST',
@@ -56,10 +56,11 @@ const TeleMedicine = ({ navigation, userId }) => {
 
   // Fetch doctors data from the API
   useEffect(() => {
-    fetch(`${BASE_URL}/doctors/`)
+    fetch(`${BASE_URL}/api/available-telemedicine-doctors/`)
       .then((response) => response.json())
       .then((data) => {
-        setDoctors(data.doctors); // Set the fetched doctors to state
+        setDoctors(data);
+        console.log(data.doctors, '---------', `${BASE_URL}/api/available-telemedicine-doctors/`) // Set the fetched doctors to state
       })
       .catch((error) => {
         console.error('Error fetching doctors:', error);
@@ -100,7 +101,7 @@ const TeleMedicine = ({ navigation, userId }) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {doctors.map((doctor) => (
+        {doctors?.map((doctor) => (
           <View key={doctor.id} style={styles.doctorItem}>
             {/* Profile Image and Details */}
             <View style={styles.profileSection}>
@@ -114,9 +115,12 @@ const TeleMedicine = ({ navigation, userId }) => {
             <View style={styles.availableSection}>
               <Text style={styles.doctorName}>{doctor.name}</Text>
               <TouchableOpacity
-                style={[styles.bookButton, !doctor.is_available && styles.disabledButton]}
-                onPress={() => handlePress(doctor)}  // Corrected: pass doctor as argument
-                disabled={!doctor.is_available}
+                style={[
+                  styles.bookButton,
+                  !doctor.is_available && styles.disabledButton // Apply disabled style if not available
+                ]}
+                onPress={() => handlePress(doctor)} // Pass doctor as argument
+                disabled={!doctor.is_available} // Disable button if doctor is not available
               >
                 <Text style={styles.bookText}>
                   {doctor.is_available ? 'Available' : 'Not Available'}
@@ -232,6 +236,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  disabledButton: {
+    backgroundColor: 'grey',
+  }
 });
 
 export default TeleMedicine;

@@ -29,7 +29,7 @@ const PersonalDetail = ({ navigation }) => {
     const ContactDetails = language === 'en' ? 'Contact Details' : 'معلومات التواصل';
     const MyDetails = language === 'en' ? 'My Details' : 'تفاصيلي';
     const Mykids = language === 'en' ? 'My kids' : 'أطفالي';
-    const BookingHistory = language === 'en' ? 'My kids' : 'تاريخ الحجز';
+    const BookingHistory = language === 'en' ? 'Booking History' : 'تاريخ الحجز';
     // const Calendar = language === 'en' ? 'Calendar' : 'مواعيد العيادة';
     // const ContactUs = language === 'en' ? 'Contact Us' : 'معلومات العيادة';
     // const MyKids = language === 'en' ? 'Reports' : 'التقارير و الملفات';

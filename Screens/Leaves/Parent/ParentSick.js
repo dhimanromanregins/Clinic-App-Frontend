@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ToastA
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from "jwt-decode";
+import { BASE_URL } from '../../../Actions/Api';
 
 const ParentSick = ({ navigation }) => {
   const [kids, setKids] = useState([{ name: '' }]);
