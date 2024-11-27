@@ -235,14 +235,14 @@ export default function App() {
         <Stack.Screen
           name="Home"
           component={HomeScreen}
-          options={{ headerShown: false }} // This line removes the header
+          options={{ headerShown: false }} 
         />
 
         <Stack.Screen
           name="Login"
           component={LoginScreen}
           options={{
-            headerTitle: 'Login',
+            headerShown: false,
           }}
         />
 
@@ -258,7 +258,7 @@ export default function App() {
           name="OTP"
           component={OTPScreen}
           options={{
-            headerTitle: 'Enter OTP',
+            headerShown: false,
           }}
         />
 
@@ -266,7 +266,7 @@ export default function App() {
           name="LoginOTP"
           component={LoginOTPScreen}
           options={{
-            headerTitle: 'Login with OTP',
+            headerShown: false,
           }}
         />
 
@@ -274,21 +274,21 @@ export default function App() {
           name="Forgot"
           component={ForgotScreen}
           options={{
-            headerTitle: 'ForgotPassword',
+            headerShown: false,
           }}
         />
         <Stack.Screen
           name="ForgotOTPVerify"
           component={ForgetPasswordOTPScreen}
           options={{
-            headerTitle: 'Forget OTP Verifications',
+            headerShown: false,
           }}
         />
         <Stack.Screen
           name="ResetPassword"
           component={ResetPassword}
           options={{
-            headerTitle: 'ForgotPassword',
+            headerShown: false,
           }}
         />
 
@@ -304,18 +304,14 @@ export default function App() {
           name="BookDoctor"
           component={BookDoctor}
           options={{
-            headerTitle: '',
-
-
+            headerShown: false,
           }}
         />
         <Stack.Screen
           name="DoctorDetail"
           component={DoctorProfile}
           options={{
-            headerTitle: '',
-
-
+            headerShown: false,
           }}
         />
         <Stack.Screen
@@ -413,7 +409,7 @@ export default function App() {
           name="WhomeItMayCocern"
           component={WhomeItMayCocern}
           options={{
-            headerShown: false,
+            headerShown: null,
           }}
         />
         <Stack.Screen

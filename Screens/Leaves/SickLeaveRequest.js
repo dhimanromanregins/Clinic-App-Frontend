@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import React, { useState, useEffect , useCallback} from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert , Modal, FlatList} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { BASE_URL } from '../../Actions/Api';
+import { useFocusEffect } from '@react-navigation/native';
+
+
 const SickLeaveRequest = ({ navigation }) => {
   const [children, setChildren] = useState([]);
   const [selectedChild, setSelectedChild] = useState(null);
@@ -11,6 +14,50 @@ const SickLeaveRequest = ({ navigation }) => {
   const [sender, setSender] = useState('');
   const [notes, SetNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  const [language, setLanguage] = useState('en');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const SickLeaveRequest2 = language === 'en' ? 'Parent Sick Leave' : 'طلب إجازة مرضية';
+  const SelectKid = language === 'en' ? 'Select Kid' : 'حدد طفل';
+  const From = language === 'en' ? 'From' : 'من';
+  const To = language === 'en' ? 'To' : 'ل';
+  const Apply = language === 'en' ? 'Apply' : 'قدم الطلب';
+  const AddtionalNotes = language === 'en' ? 'Addtional Notes' : 'ملاحظات إضافية';
+  const Note1 = language === 'en' ? 'Note: Sick leave is only issued upon medical examination or remote treatment. You will receive the sick leave within 12 working hours if it is approved.' : 'ملاحظة يتم أستخراج الطلب  فقط لمن رافق الطفل في معاينه او مراجعه طبيه';  
+  const Note2 = language === 'en' ? 'You will receive a companion leave if it is approved within 24 working hours.' : 'سيصلك الكتاب حال تم الموافقة خلال 24 ساعه';  
+  const toggleLanguage = async (selectedLanguage) => {
+    try {
+      setLanguage(selectedLanguage);
+      await AsyncStorage.setItem('selectedLanguage', selectedLanguage);
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error('Error saving language to local storage:', error);
+    }
+  };
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'ur', label: 'العربية' },
+  ];
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
 
   // Fetch children list on component mount
   useEffect(() => {
@@ -80,7 +127,7 @@ const SickLeaveRequest = ({ navigation }) => {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.languageIcon}
-          onPress={() => alert('Language switch clicked')}
+          onPress={() => setIsModalVisible(true)}
         >
           <MaterialIcons name="language" size={34} color="white" />
         </TouchableOpacity>
@@ -94,13 +141,36 @@ const SickLeaveRequest = ({ navigation }) => {
 
       {/* Scrollable Content */}
       <ScrollView style={styles.container}>
+      <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <FlatList
+                data={languages}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => toggleLanguage(item.code)} style={styles.languageOption}>
+                    <Text style={styles.languageText}>{item.label}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item.code}
+              />
+              <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
         <View style={styles.textSection}>
-          <Text style={styles.text}>Sick Leave Request</Text>
+          <Text style={styles.text}>{SickLeaveRequest2}</Text>
           <View style={styles.borderLine} />
         </View>
 
         {/* Kid Selector */}
-        <Text style={styles.Newlabel}>Select Kid</Text>
+        <Text style={styles.Newlabel}>{SelectKid}</Text>
 
 
         <Picker
@@ -118,7 +188,7 @@ const SickLeaveRequest = ({ navigation }) => {
         {/* To and From Section */}
         <View style={styles.row}>
           <View style={styles.inputGroupHalf}>
-            <Text style={styles.label}>To</Text>
+            <Text style={styles.label}>{To}</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter To"
@@ -129,7 +199,7 @@ const SickLeaveRequest = ({ navigation }) => {
             />
           </View>
           <View style={styles.inputGroupHalf}>
-            <Text style={styles.label}>From</Text>
+            <Text style={styles.label}>{From}</Text>
             <TextInput
               style={styles.input}
               placeholder="Enter From"
@@ -142,7 +212,7 @@ const SickLeaveRequest = ({ navigation }) => {
         </View>
 
         {/* Additional Notes */}
-        <Text style={styles.label}>Addtional Notes</Text>
+        <Text style={styles.label}>{AddtionalNotes}</Text>
         <View style={styles.inputGroup}>
           <TextInput
             style={styles.input1}
@@ -164,11 +234,10 @@ const SickLeaveRequest = ({ navigation }) => {
           onPress={handleSubmit}
           disabled={isSubmitting}
         >
-          <Text style={styles.applyButtonText}>{isSubmitting ? 'Submitting...' : 'Apply'}</Text>
+          <Text style={styles.applyButtonText}>{isSubmitting ? 'Submitting...' : `${Apply}`}</Text>
         </TouchableOpacity>
         <Text style={styles.note}>
-          Note: Sick leave is only issued upon medical examination or remote treatment.
-          You will receive the sick leave within 12 working hours if it is approved.
+          {Note1}
         </Text>
       </ScrollView>
 
@@ -187,7 +256,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 30,
   },
   languageIcon: {
     marginRight: 15,
@@ -311,6 +380,35 @@ const styles = StyleSheet.create({
     marginTop: -8,
     borderWidth: 5,
 
+  },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Background overlay
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+  },
+  languageOption: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+  },
+  languageText: {
+    fontSize: 18,
+    color: 'black',
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#24d4b8',
+    borderRadius: 5,
+    alignItems: 'center',
   },
 });
 

@@ -167,6 +167,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop:30,
   },
   languageIcon: {
     marginRight: 15,

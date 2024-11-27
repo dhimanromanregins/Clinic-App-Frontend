@@ -240,6 +240,7 @@ const styles = StyleSheet.create({
   },
   header: {
     width: '100%',
+    marginTop:32,
     backgroundColor: 'rgba(24,212,184,255)',
     paddingVertical: 10,
     paddingHorizontal: 15,

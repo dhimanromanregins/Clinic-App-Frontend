@@ -1,14 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ToastAndroid } from 'react-native';
+import React, { useState, useEffect , useCallback} from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView, ToastAndroid , FlatList, Modal} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { jwtDecode } from "jwt-decode";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from '../../Actions/Api';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 const TeleMedicine = ({ navigation, userId }) => {
   const [doctors, setDoctors] = useState([]);
+  const [language, setLanguage] = useState('en');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+
+  const TelemedicineDoctorsAvailable  = language === 'en' ? 'Telemedicine Doctors Available' : 'العلاج عن بعد';
+  const Available = language === 'en' ? 'Available' : 'أتصال';
+  const NotAvailable = language === 'en' ? 'Not Available' : 'غير متاح';
+
+
+
+  const toggleLanguage = async (selectedLanguage) => {
+    try {
+      setLanguage(selectedLanguage);
+      await AsyncStorage.setItem('selectedLanguage', selectedLanguage);
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error('Error saving language to local storage:', error);
+    }
+  };
+
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'ur', label: 'العربية' },
+  ];
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
 
   const handlePress = async (doctor) => {
     const accessToken = await AsyncStorage.getItem('access_token');
@@ -73,11 +116,34 @@ const TeleMedicine = ({ navigation, userId }) => {
 
   return (
     <View style={styles.container}>
+      <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <FlatList
+                data={languages}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => toggleLanguage(item.code)} style={styles.languageOption}>
+                    <Text style={styles.languageText}>{item.label}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item.code}
+              />
+              <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       <View style={styles.header}>
         {/* Language Switcher Icon */}
         <TouchableOpacity
           style={styles.languageIcon}
-          onPress={() => alert('Language switch clicked')}
+          onPress={() => setIsModalVisible(true)}
         >
           <MaterialIcons name="language" size={34} color="white" />
         </TouchableOpacity>
@@ -92,7 +158,7 @@ const TeleMedicine = ({ navigation, userId }) => {
       </View>
 
       <View style={styles.textSection}>
-        <Text style={styles.text}>Tele Medicine Doctors</Text>
+        <Text style={styles.text}>{TelemedicineDoctorsAvailable}</Text>
         <View style={styles.borderLine} />
       </View>
 
@@ -123,7 +189,7 @@ const TeleMedicine = ({ navigation, userId }) => {
                 disabled={!doctor.is_available} // Disable button if doctor is not available
               >
                 <Text style={styles.bookText}>
-                  {doctor.is_available ? 'Available' : 'Not Available'}
+                  {doctor.is_available ? `${Available}` : `${NotAvailable}`}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -242,7 +308,35 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: 'grey',
-  }
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Background overlay
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+  },
+  languageOption: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+  },
+  languageText: {
+    fontSize: 18,
+    color: 'black',
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#24d4b8',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
 });
 
 export default TeleMedicine;

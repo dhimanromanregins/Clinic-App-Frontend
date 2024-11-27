@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, KeyboardAvoidingView, Platform , ToastAndroid} from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, KeyboardAvoidingView,Modal,FlatList, Platform , ToastAndroid} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 import { BASE_URL } from '../../Actions/Api';
+import { useFocusEffect } from '@react-navigation/native';
 
 const AddKidsDetail = ({ navigation }) => {
   const [fullName, setFullName] = useState('');
@@ -15,8 +16,55 @@ const AddKidsDetail = ({ navigation }) => {
   const [dob, setDob] = useState('');
   const [insuranceNumber, setInsuranceNumber] = useState('');
   const [accessToken, setAccessToken] = useState('');
+  const [language, setLanguage] = useState('en');
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [errors, setErrors] = useState({});
+
+
+  const AddKidsDetail = language === 'en' ? "Add Kid's Detail" : 'أضف تفاصيل الطفل';
+  const UAENumber = language === 'en' ? 'UAE ID Number' : 'رقم الهويه الأماراتية';
+  const Sex = language === 'en' ? 'Sex' : 'الجنس';
+  const Nationality = language === 'en' ? 'Nationality' : 'الجنسيه';
+  const AddKid = language === 'en' ? 'Add Kid' : 'أضف طفل';
+  const DOB = language === 'en' ? 'Date Of Birth' : 'تاريخ الميلاد';
+  const InsuranceCompany = language === 'en' ? 'Insurance Company' : 'شركة التأمين';  
+  const InsuranceCompanyNumber = language === 'en' ? 'Insurance Number' : 'رقم التأمين'; 
+  const FullNameasUAEID = language === 'en' ? 'Full Name as UAE ID' : 'ألأسم الكامل (حسب الهويه الأماراتية)';
+
+
+  const toggleLanguage = async (selectedLanguage) => {
+    try {
+      setLanguage(selectedLanguage);
+      await AsyncStorage.setItem('selectedLanguage', selectedLanguage);
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error('Error saving language to local storage:', error);
+    }
+  };
+
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'ur', label: 'العربية' },
+  ];
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
 
   const genderChoices = [
     { label: "Male", value: "MALE" },
@@ -96,127 +144,154 @@ const AddKidsDetail = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : null}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        {/* Header with Back Button and Language Switch */}
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.languageIcon} onPress={() => alert('Language switch clicked')}>
-            <MaterialIcons name="language" size={34} color="white" />
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <FontAwesome name="angle-left" size={34} color="rgba(24,212,184,255)" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Section Title */}
-        <View style={styles.textSection}>
-          <Text style={styles.text}>Add Kid's Details</Text>
-          <View style={styles.borderLine} />
-        </View>
-
-        {/* Full Name Input */}
-        <Text style={styles.label}>Full Name as per UAE ID</Text>
-        <TextInput
-          style={styles.input}
-          value={fullName}
-          onChangeText={setFullName}
-        />
-        {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
-
-        {/* UAE ID Number */}
-        <Text style={styles.label}>UAE ID Number</Text>
-        <TextInput
-          style={styles.input}
-          value={uaeId}
-          onChangeText={setUaeId}
-          keyboardType="numeric"
-        />
-        {errors.uaeId && <Text style={styles.errorText}>{errors.uaeId}</Text>}
-
-        {/* Gender Dropdown */}
-        <View style={styles.row}>
-  {/* Sex Input */}
-  <View style={styles.inputContainer}>
-    <Text style={styles.label}>Sex</Text>
-    <View style={styles.pickerContainer}> {/* Wrapping Picker with a View */}
-      <Picker
-        selectedValue={sex}
-        style={styles.picker} // Apply general picker style
-        onValueChange={setSex}
-      >
-        {genderChoices.map((choice) => (
-          <Picker.Item key={choice.value} label={choice.label} value={choice.value} />
-        ))}
-      </Picker>
-    </View>
-    {errors.sex && <Text style={styles.errorText}>{errors.sex}</Text>}
-  </View>
-
-  {/* Nationality Input */}
-  <View style={styles.inputContainer}>
-    <Text style={styles.label}>Nationality</Text>
-    <TextInput
-      style={styles.input}
-      value={nationality}
-      onChangeText={setNationality}
-    />
-    {errors.nationality && <Text style={styles.errorText}>{errors.nationality}</Text>}
-  </View>
-</View>
-
-
-        {/* Insurance Company Dropdown */}
-        <View style={styles.row}>
-  {/* Insurance Company Input */}
-  <View style={styles.inputContainer}>
-    <Text style={styles.label}>Insurance Company</Text>
-    <View style={styles.pickerContainer}> {/* Wrap the Picker in a View to style it */}
-      <Picker
-        selectedValue={insuranceCompany}
-        style={styles.picker} // Apply the picker-specific style
-        onValueChange={setInsuranceCompany}
-      >
-        {insuranceChoices.map((choice) => (
-          <Picker.Item key={choice.value} label={choice.label} value={choice.value} />
-        ))}
-      </Picker>
-    </View>
-    {errors.insuranceCompany && <Text style={styles.errorText}>{errors.insuranceCompany}</Text>}
-  </View>
-
-  {/* Date of Birth Input */}
-  <View style={styles.inputContainer}>
-    <Text style={styles.label}>Date of Birth</Text>
-    <TextInput
-      style={styles.input}
-      value={dob}
-      onChangeText={setDob}
-    />
-    {errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
-  </View>
-</View>
-
-        {/* Insurance Number */}
-        <Text style={styles.label}>Insurance Number</Text>
-        <TextInput
-          style={styles.input}
-          value={insuranceNumber}
-          onChangeText={setInsuranceNumber}
-        />
-        {errors.insuranceNumber && <Text style={styles.errorText}>{errors.insuranceNumber}</Text>}
-
-        {/* Add Kid Button */}
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Add Kid</Text>
+    <View style={{ flex: 1 }}>
+      {/* Header Section */}
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.languageIcon} onPress={() => setIsModalVisible(true)}>
+          <MaterialIcons name="language" size={34} color="white" />
         </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      
+      </View>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <FontAwesome name="angle-left" size={34} color="rgba(24,212,184,255)" />
+        </TouchableOpacity>
+      {/* Modal for Language Selection */}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <FlatList
+              data={languages}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => toggleLanguage(item.code)} style={styles.languageOption}>
+                  <Text style={styles.languageText}>{item.label}</Text>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item.code}
+            />
+            <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Main Content Section */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+      >
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          {/* Section Title */}
+          <View style={styles.textSection}>
+            <Text style={styles.text}>{AddKidsDetail}</Text>
+            <View style={styles.borderLine} />
+          </View>
+
+          {/* Full Name Input */}
+          <Text style={styles.label}>{FullNameasUAEID}</Text>
+          <TextInput
+            style={styles.input}
+            value={fullName}
+            onChangeText={setFullName}
+          />
+          {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
+
+          {/* UAE ID Number */}
+          <Text style={styles.label}>{UAENumber}</Text>
+          <TextInput
+            style={styles.input}
+            value={uaeId}
+            onChangeText={setUaeId}
+            keyboardType="numeric"
+          />
+          {errors.uaeId && <Text style={styles.errorText}>{errors.uaeId}</Text>}
+
+          {/* Gender Dropdown */}
+          <View style={styles.row}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{Sex}</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={sex}
+                  style={styles.picker}
+                  onValueChange={setSex}
+                >
+                  {genderChoices.map((choice) => (
+                    <Picker.Item key={choice.value} label={choice.label} value={choice.value} />
+                  ))}
+                </Picker>
+              </View>
+              {errors.sex && <Text style={styles.errorText}>{errors.sex}</Text>}
+            </View>
+
+            {/* Nationality Input */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{Nationality}</Text>
+              <TextInput
+                style={styles.input}
+                value={nationality}
+                onChangeText={setNationality}
+              />
+              {errors.nationality && <Text style={styles.errorText}>{errors.nationality}</Text>}
+            </View>
+          </View>
+
+          {/* Insurance Company Dropdown */}
+          <View style={styles.row}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{InsuranceCompany}</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={insuranceCompany}
+                  style={styles.picker}
+                  onValueChange={setInsuranceCompany}
+                >
+                  {insuranceChoices.map((choice) => (
+                    <Picker.Item key={choice.value} label={choice.label} value={choice.value} />
+                  ))}
+                </Picker>
+              </View>
+              {errors.insuranceCompany && <Text style={styles.errorText}>{errors.insuranceCompany}</Text>}
+            </View>
+
+            {/* Date of Birth Input */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{DOB}</Text>
+              <TextInput
+                style={styles.input}
+                value={dob}
+                onChangeText={setDob}
+              />
+              {errors.dob && <Text style={styles.errorText}>{errors.dob}</Text>}
+            </View>
+          </View>
+
+          {/* Insurance Number */}
+          <Text style={styles.label}>{InsuranceCompanyNumber}</Text>
+          <TextInput
+            style={styles.input}
+            value={insuranceNumber}
+            onChangeText={setInsuranceNumber}
+          />
+          {errors.insuranceNumber && <Text style={styles.errorText}>{errors.insuranceNumber}</Text>}
+
+          {/* Add Kid Button */}
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>{AddKid}</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+   padding:20,
     backgroundColor: '#f9f9f9',
     flexGrow: 1, // Ensures that the content can expand and scroll
   },
@@ -224,15 +299,19 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'rgba(24,212,184,255)', // Green background
     paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingHorizontal: 5,
     flexDirection: 'row', // Arrange elements horizontally
     justifyContent: 'space-between', // Space out the icons
+    padding:0,
+    marginTop:30,
   },
+
   textSection: {
     width: '100%',
     alignItems: 'center',
     marginBottom: 20,
-    marginTop: 20,
+    marginTop:0,
+
   },
   text: {
     fontSize: 20,
@@ -313,6 +392,34 @@ const styles = StyleSheet.create({
     height: 58, // Ensure the Picker is properly sized
     width: '100%',
     color:'#fff',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Background overlay
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+  },
+  languageOption: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+  },
+  languageText: {
+    fontSize: 18,
+    color: 'black',
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#24d4b8',
+    borderRadius: 5,
+    alignItems: 'center',
   },
 });
 

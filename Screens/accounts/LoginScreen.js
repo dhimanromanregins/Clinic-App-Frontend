@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Button, Alert, ToastAndroid,TouchableOpacity, Image, Modal, FlatList, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ActivityIndicator, Alert, ToastAndroid,TouchableOpacity, Image, Modal, FlatList, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import {BASE_URL} from "../../Actions/Api"
@@ -10,6 +10,7 @@ export default function LoginScreen({ navigation }) {
   const [language, setLanguage] = useState('en');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   
   // Error states for fields
   const [mobileError, setMobileError] = useState('');
@@ -30,6 +31,8 @@ export default function LoginScreen({ navigation }) {
     if (!mobile || !password) {
       return;
     }
+
+    setLoading(true);
 
     const loginData = {
       identifier: mobile,
@@ -68,6 +71,8 @@ export default function LoginScreen({ navigation }) {
         ToastAndroid.LONG,
         ToastAndroid.BOTTOM
       );
+    }finally {
+      setLoading(false); // Hide spinner
     }
   };
 
@@ -173,11 +178,16 @@ const signUpLinkText = language === 'en' ? 'Sign Up' : 'حساب جديد';
   <Text style={styles.forgotPasswordText}>
     {language === 'en' ? 'Forgot Password?' : language === 'es' ? '¿Olvidaste tu contraseña?' : language === 'fr' ? 'Mot de passe oublié?' : 'پاسورڈ بھول گئے؟'}
   </Text>
+  
 </TouchableOpacity>
         
+        {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" style={styles.spinner} />
+      ) : (
         <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-          <Text style={styles.loginButtonText}>{loginText}</Text>
+          <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
+      )}
 
         {/* Sign Up Link */}
         <View style={styles.signUpContainer}>
@@ -338,5 +348,8 @@ const styles = StyleSheet.create({
     width: '100%', // Full width of the container (screen)
     marginTop: 50, // Ensure no margin around the box
     padding: 0, // Ensure no padding inside the box
+  },
+  spinner: {
+    marginVertical: 20,
   },
 });

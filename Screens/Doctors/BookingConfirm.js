@@ -1,11 +1,45 @@
-import React from 'react';
+import React, {useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { MaterialIcons, FontAwesome, AntDesign } from '@expo/vector-icons';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import * as FileSystem from 'expo-file-system';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BookingConfirm = ({ route, navigation }) => {
   const { bookingData, doctor_details } = route.params;
+  const [language, setLanguage] = useState('en');
+
+
+  const BookingConfirmed = language === 'en' ? 'Booking Confirmed' : 'تأكيد  الحجز';
+  const KidName = language === 'en' ? 'Kid Name' : 'أسم الطفل';
+  const Date = language === 'en' ? 'Date' : 'التاريخ';
+  const Day = language === 'en' ? 'Day' : 'اليوم';
+  const Time = language === 'en' ? 'Time' : 'الساعه';
+  const DoctorName = language === 'en' ? 'DoctorName' : 'اسم الطبيب';
+  const bokingToKidsName = language === 'en' ? 'Booking To Kids Name' : 'الحجز لاسم الاطفال';
+  const DownloadPDF = language === 'en' ? 'Download PDF' : 'تحميل قوات الدفاع الشعبي';
+  const HomePage = language === 'en' ? 'Home Page' : 'الصفحة الرئيسية';
+
+
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
 
   const generatePDF = async () => {
     const htmlContent = `
@@ -63,7 +97,7 @@ const BookingConfirm = ({ route, navigation }) => {
       <ScrollView style={styles.container}>
         {/* Title Section */}
         <View style={styles.textSection}>
-          <Text style={styles.text}>Booking Confirmed</Text>
+          <Text style={styles.text}>{BookingConfirmed}</Text>
           <View style={styles.borderLine} />
         </View>
 
@@ -76,28 +110,24 @@ const BookingConfirm = ({ route, navigation }) => {
 
 
         <View style={styles.detailRow}>
-          <Text style={styles.detailText}>Booking to Kid Name</Text>
+          <Text style={styles.detailText}>{bokingToKidsName}</Text>
         </View>
 
 
         <View style={styles.detailRow}>
           <Text style={styles.detailTextLeft}>{bookingData.date}</Text>
-          <Text style={styles.detailTextRight}>Date</Text>
+          <Text style={styles.detailTextRight}>{Date}</Text>
         </View>
 
-        <View style={styles.detailRow}>
-          <Text style={styles.detailTextLeft}>2024145</Text>
-          <Text style={styles.detailTextRight}>Id number</Text>
-        </View>
 
 
         <View style={styles.detailRow}>
           <Text style={styles.detailTextLeft}>{bookingData.slot_start} {bookingData.slot_end}</Text>
-          <Text style={styles.detailTextRight}>Time</Text>
+          <Text style={styles.detailTextRight}>{Time}</Text>
         </View>
         <View style={styles.detailRow}>
           <Text style={styles.detailTextLeft}>{doctor_details.name}</Text>
-          <Text style={styles.detailTextRight}>Doctor Name</Text>
+          <Text style={styles.detailTextRight}>{DoctorName}</Text>
         </View>
 
         <View style={styles.detailRow}>
@@ -116,7 +146,7 @@ const BookingConfirm = ({ route, navigation }) => {
               }
             })()}
           </Text>
-          <Text style={styles.detailTextRight}>Kids Names</Text>
+          <Text style={styles.detailTextRight}>{KidName}</Text>
         </View>
 
 
@@ -131,14 +161,14 @@ const BookingConfirm = ({ route, navigation }) => {
         style={styles.downloadButton}
         // onPress={generatePDF}
       >
-        <Text style={styles.buttonText}>Download PDF</Text>
+        <Text style={styles.buttonText}>{DownloadPDF}</Text>
       </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.homeButton}
           onPress={() => navigation.navigate('Dashboard')}
         >
-          <Text style={styles.buttonText}>Home Page</Text>
+          <Text style={styles.buttonText}>{HomePage}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

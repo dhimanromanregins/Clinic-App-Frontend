@@ -44,7 +44,7 @@ export default function RegisterScreen({ navigation }) {
     if (Object.keys(validationErrors).length > 0) {
       return;
     }
-  
+    setLoading(true)
     const data = {
       first_name: nameParts[0],
       last_name: nameParts.slice(1).join(' '),
@@ -65,15 +65,16 @@ export default function RegisterScreen({ navigation }) {
       setLoading(false);
       console.log(response, '---------------------')
       // Check if the response is successful
-      if (response.ok) {
-        const responseData = await response.json(); // Parse JSON response
+      if (response.status === 201) {
+        const responseData = await response.json(); 
+        navigation.navigate('OTP');
         console.log(responseData, "666666666666666");
         ToastAndroid.showWithGravity(
           'OTP is sent to your Mobile Number: ' + responseData?.message,
           ToastAndroid.LONG,
           ToastAndroid.TOP
         );
-        navigation.navigate('OTP'); // Navigate to OTP screen
+         // Navigate to OTP screen
       } else {
         // Handle non-success responses
         const errorData = await response.json(); // Parse error details
@@ -86,6 +87,8 @@ export default function RegisterScreen({ navigation }) {
         ToastAndroid.LONG,
         ToastAndroid.BOTTOM
       );
+    } finally{
+      setLoading(false)
     }
   };
   const toggleLanguage = (selectedLanguage) => {
@@ -210,10 +213,13 @@ export default function RegisterScreen({ navigation }) {
         </View>
         
         {errors.password && <Text style={styles.error}>{errors.password}</Text>}
+        {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" style={styles.spinner} />
+      ) : (
         <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
           <Text style={styles.registerButtonText}>{registerText}</Text>
         </TouchableOpacity>
-
+      )}
         {/* Sign In Link */}
         <View style={styles.signInContainer}>
           <Text style={styles.signInText}>{signInText} </Text>
@@ -357,5 +363,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 1,
     marginVertical: 5,
+  },
+  spinner: {
+    marginVertical: 20,
   },
 });

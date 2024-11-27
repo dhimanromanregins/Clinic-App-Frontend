@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ToastAndroid, TextInput, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect , useCallback} from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ToastAndroid, TextInput, ScrollView, Alert , Modal, FlatList} from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BASE_URL} from "../../Actions/Api"
+import { useFocusEffect } from '@react-navigation/native';
 
 const AddDetail = ({ route, navigation }) => {
   const { doctor_details } = route.params;
+  const [language, setLanguage] = useState('en');
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [doctor, setDoctor] = useState(null);
   const [dateTime, setDateTime] = useState('');
   const [timeSlots, setTimeSlots] = useState([]);
@@ -13,6 +16,49 @@ const AddDetail = ({ route, navigation }) => {
   const [kids, setKids] = useState(['']);
   const [userId, setUserId] = useState(null); // Assume userId is passed or available from context or login
   const doctorId = doctor_details.id
+
+  const ChoseKid = language === 'en' ? 'Chose Kid' : 'أختر الطفل';
+  const DayandTime = language === 'en' ? 'Day and Time' : 'اليوم و التاريخ';
+  const AvailableHours = language === 'en' ? 'Available Hours' : 'الساعات المتاحة';
+  const Book = language === 'en' ? 'Book' : 'كتاب';
+  const Apply = language === 'en' ? 'Apply' : 'يتقدم';
+  const Noslotsavailable = language === 'en' ? 'No slots available' : 'لا توجد فتحات متاحة';
+
+  const toggleLanguage = async (selectedLanguage) => {
+    try {
+      setLanguage(selectedLanguage);
+      await AsyncStorage.setItem('selectedLanguage', selectedLanguage);
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error('Error saving language to local storage:', error);
+    }
+  };
+
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'ur', label: 'العربية' },
+  ];
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
+
+
+
   useEffect(() => {
     // Fetch doctor's details
     const fetchDoctorDetails = async () => {
@@ -140,9 +186,32 @@ const AddDetail = ({ route, navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <FlatList
+                data={languages}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => toggleLanguage(item.code)} style={styles.languageOption}>
+                    <Text style={styles.languageText}>{item.label}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item.code}
+              />
+              <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       {/* Header Section */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.languageIcon} onPress={() => alert('Language switch clicked')}>
+        <TouchableOpacity style={styles.languageIcon} onPress={() => setIsModalVisible(true)}>
           <MaterialIcons name="language" size={34} color="white" />
         </TouchableOpacity>
       </View>
@@ -167,7 +236,7 @@ const AddDetail = ({ route, navigation }) => {
 
       <View style={styles.mainContent}>
         <View style={styles.labelContainer}>
-          <Text style={styles.inputLabel}>Choose Kid</Text>
+          <Text style={styles.inputLabel}>{ChoseKid}</Text>
         </View>
 
         {/* Dynamic Kid Name Inputs */}
@@ -197,10 +266,10 @@ const AddDetail = ({ route, navigation }) => {
 
         {/* Date and Time Section */}
         <View style={styles.dateTimeContainer}>
-          <Text style={styles.inputLabel}>Date</Text>
+          <Text style={styles.inputLabel}>{DayandTime}</Text>
           <View style={styles.dateTimeRow}>
           <TouchableOpacity style={styles.applyButton} onPress={handleFetchSlots}>
-              <Text style={styles.applyButtonText}>Apply</Text>
+              <Text style={styles.applyButtonText}>{Apply}</Text>
             </TouchableOpacity>
             <TextInput
               style={styles.dateTimeInputField}
@@ -214,7 +283,7 @@ const AddDetail = ({ route, navigation }) => {
 
         {/* Available Slots */}
         <View style={styles.availableHoursContainer}>
-          <Text style={styles.availableHoursText}>Available Hours</Text>
+          <Text style={styles.availableHoursText}>{AvailableHours}</Text>
           <View style={styles.borderLine} />
           <View style={styles.timeSlotsContainer}>
   {timeSlots.length > 0 ? (
@@ -234,7 +303,7 @@ const AddDetail = ({ route, navigation }) => {
       </TouchableOpacity>
     ))
   ) : (
-    <Text style={styles.noSlotsText}>No slots available</Text>
+    <Text style={styles.noSlotsText}>{Noslotsavailable}</Text>
   )}
 </View>
         </View>
@@ -243,7 +312,7 @@ const AddDetail = ({ route, navigation }) => {
           style={styles.bookButton}
           onPress={handleBooking} // Call handleBooking on button click
         >
-          <Text style={styles.bookButtonText}>Book</Text>
+          <Text style={styles.bookButtonText}>{Book}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -486,7 +555,35 @@ const styles = StyleSheet.create({
     color: 'gray',
     fontSize: 16,
     textAlign: 'center',
-  }
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)', // Background overlay
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '80%',
+  },
+  languageOption: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+  },
+  languageText: {
+    fontSize: 18,
+    color: 'black',
+  },
+  closeButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#24d4b8',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
 
 });
 

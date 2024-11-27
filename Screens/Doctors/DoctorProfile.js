@@ -1,14 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState , useCallback} from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import {BASE_URL} from "../../Actions/Api"
-
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MaterialIcons, FontAwesome, AntDesign } from '@expo/vector-icons';
 const DoctorProfile = ({ route, navigation }) => {
   const { doctorId } = route.params;  // Assuming doctorId is passed from the previous screen
   const [doctor, setDoctor] = useState(null);
+  const [language, setLanguage] = useState('en');
 
   const handleDoctorDetail = (doctor_details) => {
     navigation.navigate('Booking', { doctor_details });
   };
+
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'ur', label: 'العربية' },
+  ];
+
+  const BookAppointment = language === 'en' ? 'Book Appointment' : 'حجز موعد';
+
+
+
 
   // Fetch doctor details based on the doctorId
   useEffect(() => {
@@ -22,6 +35,25 @@ const DoctorProfile = ({ route, navigation }) => {
       });
   }, [doctorId]);
 
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
+
   if (!doctor) {
     return (
       <View style={styles.loadingContainer}>
@@ -32,6 +64,12 @@ const DoctorProfile = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
+        <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={styles.backButton}
+      >
+        <FontAwesome name="angle-left" size={34} color="rgba(24,212,184,255)" />
+      </TouchableOpacity>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.profileHeader}>
           <View style={styles.profileDetails}>
@@ -69,7 +107,7 @@ const DoctorProfile = ({ route, navigation }) => {
         style={styles.bookButton}
         onPress={() => handleDoctorDetail(doctor)} 
       >
-        <Text style={styles.bookButtonText}>Book Appointment</Text>
+        <Text style={styles.bookButtonText}>{BookAppointment}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -79,6 +117,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f9f9f9',
+    marginTop:50
+    
+  },
+  backButton:{
+    padding:10,
   },
   loadingContainer: {
     flex: 1,

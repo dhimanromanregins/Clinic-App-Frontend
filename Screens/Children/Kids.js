@@ -1,13 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState , useCallback} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, ToastAndroid,ScrollView,ActivityIndicator, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL } from "../../Actions/Api"
+import { useFocusEffect } from '@react-navigation/native';
 
 const Kids = ({ navigation }) => {
   const [kids, setKids] = useState([]); 
   const [loading, setLoading] = useState(true); 
+  const [language, setLanguage] = useState('en');
 
+
+  const Kids = language === 'en' ? 'Kids' : 'أطفالي';
+  const NoKidsFound = language === 'en' ? 'No Kids Found' : 'لم يتم العثور على أطفال';
+ 
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
   useEffect(() => {
     const fetchKids = async () => {
       try {
@@ -56,7 +79,7 @@ const Kids = ({ navigation }) => {
 
       {/* Section Title */}
       <View style={styles.textSection}>
-        <Text style={styles.text}>Kids</Text>
+        <Text style={styles.text}>{Kids}</Text>
         <View style={styles.borderLine} />
       </View>
       <ScrollView style={styles.scrollView}>
@@ -94,7 +117,7 @@ const Kids = ({ navigation }) => {
               </TouchableOpacity>
             ))
           ) : (
-            <Text style={styles.noKidsText}>No kids found</Text>
+            <Text style={styles.noKidsText}>{NoKidsFound}</Text>
           )}
         </View>
       )}
@@ -213,6 +236,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 5,
   },
+  
 });
 
 export default Kids;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,14 +6,47 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  ActivityIndicator,
+  ActivityIndicator, Modal,
+  FlatList
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { BASE_URL } from "../../Actions/Api.js"
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BookDoctor = ({ navigation }) => {
   const [doctors, setDoctors] = useState([]); // State for doctors
   const [loading, setLoading] = useState(true); // State for loading indicator
+  const [language, setLanguage] = useState('en');
+
+
+
+  const Doctors = language === 'en' ? 'Doctors' : 'أطباء العيادة';   
+  const Book = language === 'en' ? 'Book' : 'كتاب';
+
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'ur', label: 'العربية' },
+  ];
+
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
 
   // Fetch doctors from the API
   useEffect(() => {
@@ -55,6 +88,7 @@ const BookDoctor = ({ navigation }) => {
         <Text style={styles.text}>Book an Appointment</Text>
         <View style={styles.borderLine} />
       </View>
+      <Text style={styles.text}>{Doctors}</Text>
       
 
       {/* Display loading indicator */}
@@ -81,7 +115,7 @@ const BookDoctor = ({ navigation }) => {
                 style={styles.bookButton}
                 onPress={() => handleBookAppointment(doctor)}
               >
-                <Text style={styles.bookText}>Book</Text>
+                <Text style={styles.bookText}>{Book}</Text>
               </TouchableOpacity>
 
               {/* Exclamation Icon */}
@@ -116,12 +150,14 @@ const styles = StyleSheet.create({
   textSection: {
     width: '90%',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 0,
   },
   text: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#2a4770',
+    marginTop:50,
+  
   },
   borderLine: {
     width: '100%',

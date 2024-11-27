@@ -78,14 +78,14 @@ const MyKids = ({ route, navigation }) => {
           </TouchableOpacity>
 
           {/* Back Button Icon */}
-          <TouchableOpacity
+    
+        </View>
+        <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
             <FontAwesome name="angle-left" size={34} color="rgba(24,212,184,255)" />
           </TouchableOpacity>
-        </View>
-
         {/* Section Title */}
         <View style={styles.textSection}>
           <Text style={styles.text}>My Kids</Text>
@@ -183,6 +183,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     flexDirection: 'row',
     alignItems: 'center',
+    marginTop:28,
   },
 
   textSection: {
@@ -207,6 +208,9 @@ const styles = StyleSheet.create({
 
   backButton: {
     padding: 10,
+    position: 'absolute',  // Position it absolutely within the parent container
+    left: 0,               // Align it to the left
+    top: 80,               // You can adjust the top value if needed
   },
 
   card: {

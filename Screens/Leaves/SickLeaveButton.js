@@ -1,9 +1,53 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React ,{useState, useCallback} from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity , Modal, FlatList} from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const SickLeaveButton = ({ route,navigation }) => {
   const { childId } = route.params;
+  const [language, setLanguage] = useState('en');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+
+
+  const SickLeave = language === 'en' ? 'Sick Leave' : 'الإجازة المرضية';
+  const SickLeaveRecords = language === 'en' ? 'Sick Leave Records' : 'سجلات الإجازات المرضية';
+  const SickLeaveRequest = language === 'en' ? 'Sick Leave Request' : 'طلب إجازة مرضية';
+
+  const toggleLanguage = async (selectedLanguage) => {
+    try {
+      setLanguage(selectedLanguage);
+      await AsyncStorage.setItem('selectedLanguage', selectedLanguage);
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error('Error saving language to local storage:', error);
+    }
+  };
+
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'ur', label: 'العربية' },
+  ];
+
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
   return (
     <View style={{ flex: 1 }}>
     {/* Header Section - Full width */}
@@ -11,7 +55,7 @@ const SickLeaveButton = ({ route,navigation }) => {
       {/* Language Switcher Icon */}
       <TouchableOpacity 
         style={styles.languageIcon} 
-        onPress={() => alert('Language switch clicked')}
+        onPress={() => setIsModalVisible(true)}
       >
         <MaterialIcons name="language" size={34} color="white" />
       </TouchableOpacity>
@@ -27,10 +71,33 @@ const SickLeaveButton = ({ route,navigation }) => {
       </TouchableOpacity>
     {/* Scrollable Content */}
     <ScrollView style={styles.container}>
+    <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setIsModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <FlatList
+                data={languages}
+                renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => toggleLanguage(item.code)} style={styles.languageOption}>
+                    <Text style={styles.languageText}>{item.label}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item.code}
+              />
+              <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       
       {/* Title Section */}
       <View style={styles.textSection}>
-        <Text style={styles.text}> Sick Leave</Text>
+        <Text style={styles.text}> {SickLeave}</Text>
         <View style={styles.borderLine} />
       </View>
 
@@ -41,7 +108,7 @@ const SickLeaveButton = ({ route,navigation }) => {
           style={[styles.button, styles.greenBackground]} 
           onPress={() => navigation.navigate('SickLeaveRequest')}
         >
-          <Text style={styles.buttonText}>Sick Leave Request</Text>
+          <Text style={styles.buttonText}>{SickLeaveRequest}</Text>
         </TouchableOpacity>
 
         {/* Sick Leave History Button */}
@@ -49,7 +116,7 @@ const SickLeaveButton = ({ route,navigation }) => {
           style={[styles.button, styles.greenBackground]} 
           onPress={() =>navigation.navigate('SickLeave', { childId: childId })}
         >
-          <Text style={styles.buttonText}>Sick Leave Records</Text>
+          <Text style={styles.buttonText}>{SickLeaveRecords}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -68,6 +135,7 @@ const styles = StyleSheet.create({
       paddingHorizontal: 15,
       flexDirection: 'row', 
       alignItems: 'center',
+      marginTop:32
     },
     languageIcon: {
       marginRight: 15,
@@ -110,6 +178,34 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
       color: '#2a4770',
       marginRight: 10, // Text alignment right
+    },
+    modalContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.5)', // Background overlay
+    },
+    modalContent: {
+      backgroundColor: 'white',
+      borderRadius: 10,
+      padding: 20,
+      width: '80%',
+    },
+    languageOption: {
+      padding: 10,
+      borderBottomWidth: 1,
+      borderColor: '#ccc',
+    },
+    languageText: {
+      fontSize: 18,
+      color: 'black',
+    },
+    closeButton: {
+      marginTop: 20,
+      padding: 10,
+      backgroundColor: '#24d4b8',
+      borderRadius: 5,
+      alignItems: 'center',
     },
   });
 export default SickLeaveButton;

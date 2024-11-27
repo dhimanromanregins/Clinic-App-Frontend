@@ -38,6 +38,25 @@ const Dashboard = ({ navigation }) => {
     { code: 'en', label: 'English' },
     { code: 'ur', label: 'العربية' },
   ];
+
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadSelectedLanguage = async () => {
+        try {
+          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
+          if (savedLanguage) {
+            setLanguage(savedLanguage);
+            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
+          }
+        } catch (error) {
+          console.error('Error loading language from local storage:', error);
+        }
+      };
+
+      loadSelectedLanguage(); // Invoke the function to load the language
+    }, [])
+  );
   // Fetch banners from the API using fetch
   useEffect(() => {
     const fetchBanners = async () => {
@@ -48,6 +67,7 @@ const Dashboard = ({ navigation }) => {
         const bannerImages = data.map(banner => {
           return `${BASE_URL}${banner.image}`; // Construct the full URL for the image
         });
+
 
         setImages(bannerImages);
       } catch (error) {
@@ -110,23 +130,6 @@ const Dashboard = ({ navigation }) => {
     fetchNotifications();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      const loadSelectedLanguage = async () => {
-        try {
-          const savedLanguage = await AsyncStorage.getItem('selectedLanguage');
-          if (savedLanguage) {
-            setLanguage(savedLanguage);
-            console.log(`Loaded language from storage: ${savedLanguage}`); // Debugging log
-          }
-        } catch (error) {
-          console.error('Error loading language from local storage:', error);
-        }
-      };
-
-      loadSelectedLanguage(); // Invoke the function to load the language
-    }, [])
-  );
   const handleNext = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
   };
@@ -306,7 +309,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 15,
     position: 'absolute',
-    top: 0,
+    top: 15,
     left: 0,
   },
   leftHeaderIcons: {
@@ -446,3 +449,16 @@ fontWeight:600
 });
 
 export default Dashboard;
+
+
+
+
+
+// from twilio.rest import Client
+// account_sid = 'AC520ddc60f52a78c3bc8b8b3e46ff2c03'
+// auth_token = '2a95aabdd12d834d0dc5a9f998ba0931'
+// client = Client(account_sid, auth_token)
+// message = client.messages.create(
+//     to='+18777804236'
+// )
+// print(message.sid)
