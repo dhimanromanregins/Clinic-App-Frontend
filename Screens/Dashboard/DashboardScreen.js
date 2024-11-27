@@ -454,11 +454,4 @@ export default Dashboard;
 
 
 
-// from twilio.rest import Client
-// account_sid = 'AC520ddc60f52a78c3bc8b8b3e46ff2c03'
-// auth_token = '2a95aabdd12d834d0dc5a9f998ba0931'
-// client = Client(account_sid, auth_token)
-// message = client.messages.create(
-//     to='+18777804236'
-// )
-// print(message.sid)
+
