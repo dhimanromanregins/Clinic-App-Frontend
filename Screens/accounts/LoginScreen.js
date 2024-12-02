@@ -103,7 +103,7 @@ const signUpLinkText = language === 'en' ? 'Sign Up' : 'حساب جديد';
       <ScrollView contentContainerStyle={styles.scrollView}>
         {/* Language Switcher Icon */}
         <TouchableOpacity onPress={() => setIsModalVisible(true)} style={styles.languageSwitcher}>
-          <Ionicons name="globe" size={30} color="white" />
+          <Ionicons name="globe" size={30} color="#000" />
         </TouchableOpacity>
 
         {/* Modal for Language Selection */}
@@ -141,7 +141,7 @@ const signUpLinkText = language === 'en' ? 'Sign Up' : 'حساب جديد';
 
         {/* Settings Icon */}
         <TouchableOpacity onPress={() => Alert.alert('Settings', 'Settings clicked!')} style={styles.settingsIcon}>
-          <Ionicons name="settings" size={30} color="white" />
+          <Ionicons name="settings" size={30} color="#000" />
         </TouchableOpacity>
 
         {/* Mobile Number Input */}
@@ -206,7 +206,7 @@ const signUpLinkText = language === 'en' ? 'Sign Up' : 'حساب جديد';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(24,212,184,255)',
+
     padding: 20,
   },
   scrollView: {
@@ -283,17 +283,14 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    borderColor: '#fff',
+    borderColor: '#000',
     borderWidth: 2,
     borderRadius: 5,
     paddingLeft: 10,
     width: '100%',
-    backgroundColor: 'transparent', // No background color
-    shadowColor: '#0ebeff',  // Blue shadow color
-    shadowOffset: { width: 4, height: 4 }, // Shadow direction (right and bottom)
-    shadowOpacity: 0.8, // Shadow opacity (controls darkness)
-    shadowRadius: 10, // Shadow blur radius (controls softness)
-    elevation: 5, // For Android devices, subtle shadow effect
+    backgroundColor: 'none', // No background color
+
+    
   },
   passwordWrapper: {
     flexDirection: 'row',

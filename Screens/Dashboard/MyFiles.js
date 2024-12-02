@@ -16,7 +16,7 @@ const MyFiles = ({ navigation }) => {
   const ParentSickLeave = language === 'en' ? 'Parent Sick Leave' : 'إجازه مرافق';
   const Towhomitmayconcern = language === 'en' ? 'To Whom May Concern' : 'ألي من يهمه الأمر';
   const Lab = language === 'en' ? 'Lab' : 'المختبر';
-  const Receipt = language === 'en' ? 'Receipt' : 'ووصفة طبية';
+  const Receipt = language === 'en' ? 'Prescription' : 'ووصفة طبية';
 
   const toggleLanguage = async (selectedLanguage) => {
     try {

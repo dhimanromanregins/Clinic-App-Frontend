@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#2a4770',
     textAlign: 'right',
   },
   cardSubtitle: {

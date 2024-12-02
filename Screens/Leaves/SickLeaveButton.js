@@ -135,7 +135,8 @@ const styles = StyleSheet.create({
       paddingHorizontal: 15,
       flexDirection: 'row', 
       alignItems: 'center',
-      marginTop:32
+      marginTop:32,
+      height:80,
     },
     languageIcon: {
       marginRight: 15,

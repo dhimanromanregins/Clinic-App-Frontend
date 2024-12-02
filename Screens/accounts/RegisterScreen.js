@@ -237,7 +237,7 @@ export default function RegisterScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(24,212,184,255)',
+    backgroundColor: '#fff',
     padding: 20,
   },
   scrollView: {
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
     paddingHorizontal: 10,
-    borderColor: '#fff',
+    borderColor: '#000',
     borderWidth: 2,
     borderRadius: 5,
     fontSize: 16,

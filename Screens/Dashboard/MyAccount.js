@@ -26,7 +26,7 @@ const MyAccount = ({ navigation }) => {
                     if (response.ok) {
                         const data = await response.json();
                         setProfile(data);
-                        setUpdatedProfile(data);
+                        setUpdatedProfile({ ...data });  // Make sure updatedProfile is properly initialized
                     } else {
                         Alert.alert('Error', 'Failed to fetch profile details');
                     }
@@ -55,7 +55,7 @@ const MyAccount = ({ navigation }) => {
             const accessToken = await AsyncStorage.getItem('access_token');
 
             if (accessToken) {
-                const response = await fetch(`${BASE_URL}/api/profile/`, {
+                const response = await fetch(`${BASE_URL}/profile/update/`, {
                     method: 'PATCH',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
@@ -66,8 +66,8 @@ const MyAccount = ({ navigation }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    setProfile(data); // Update the profile with new data
-                    setEditMode(false); // Exit edit mode after saving
+                    setProfile(data);  // Update the profile with new data
+                    setEditMode(false);  // Exit edit mode after saving
                     Alert.alert('Success', 'Profile updated successfully');
                 } else {
                     Alert.alert('Error', 'Failed to update profile');
@@ -125,14 +125,6 @@ const MyAccount = ({ navigation }) => {
                     <View style={styles.borderLine} />
                 </View>
 
-                {/* Profile Image Section */}
-                <View style={styles.profileSection}>
-                    {/* <Image
-                        source={{ uri: profile.profile_picture ? `http://192.168.1.111${profile.profile_picture}` : defaultFavicon }}
-                        style={styles.profileImage}
-                    /> */}
-                </View>
-
                 {/* Profile Card */}
                 <View style={styles.card}>
                     <Text style={styles.cardTitle}>{profile.user.first_name} {profile.user.last_name}</Text>
@@ -140,42 +132,42 @@ const MyAccount = ({ navigation }) => {
                         <>
                             <TextInput
                                 style={styles.cardText}
-                                value={updatedProfile.user.first_name}
-                                onChangeText={(value) => handleEditChange('first_name', value)}
+                                value={updatedProfile.user.first_name || ''}
+                                onChangeText={(value) => handleEditChange('user.first_name', value)}
                             />
                             <TextInput
                                 style={styles.cardText}
-                                value={updatedProfile.user.last_name}
-                                onChangeText={(value) => handleEditChange('last_name', value)}
+                                value={updatedProfile.user.last_name || ''}
+                                onChangeText={(value) => handleEditChange('user.last_name', value)}
                             />
                             <TextInput
                                 style={styles.cardText}
-                                value={updatedProfile.email}
+                                value={updatedProfile.email || ''}
                                 onChangeText={(value) => handleEditChange('email', value)}
                             />
                             <TextInput
                                 style={styles.cardText}
-                                value={updatedProfile.user.phone_number}
-                                onChangeText={(value) => handleEditChange('phone_number', value)}
+                                value={updatedProfile.user.phone_number || ''}
+                                onChangeText={(value) => handleEditChange('user.phone_number', value)}
                             />
                             <TextInput
                                 style={styles.cardText}
-                                value={updatedProfile.address}
+                                value={updatedProfile.address || ''}
                                 onChangeText={(value) => handleEditChange('address', value)}
                             />
                             <TextInput
                                 style={styles.cardText}
-                                value={updatedProfile.bio}
+                                value={updatedProfile.bio || ''}
                                 onChangeText={(value) => handleEditChange('bio', value)}
                             />
                             <TextInput
                                 style={styles.cardText}
-                                value={updatedProfile.date_of_birth}
+                                value={updatedProfile.date_of_birth || ''}
                                 onChangeText={(value) => handleEditChange('date_of_birth', value)}
                             />
                             <TextInput
                                 style={styles.cardText}
-                                value={updatedProfile.gender}
+                                value={updatedProfile.gender || ''}
                                 onChangeText={(value) => handleEditChange('gender', value)}
                             />
                         </>
@@ -272,12 +264,12 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#2a4770', // Blue color used in the project
+        color: '#fff', // Blue color used in the project
         marginBottom: 10,
     },
     cardText: {
         fontSize: 16,
-        color: '#2a4770', // Black color for text
+        color: '#fff', // Black color for text
         marginBottom: 5,
     },
 

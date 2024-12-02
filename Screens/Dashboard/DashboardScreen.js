@@ -190,7 +190,11 @@ const Dashboard = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity style={styles.notificationicon} onPress={() => navigation.navigate('Notification')}>
               <MaterialIcons name="notifications" size={34} color="white" />
-              {unreadCount >= 1 && <Text style={styles.topIcons}>{unreadCount}</Text>}
+              {unreadCount >= 1 && (
+  <View style={styles.topIcons}>
+    <Text style={{ color: '#000', fontSize: 14 }}>{unreadCount}</Text>
+  </View>
+)}
             </TouchableOpacity>
           </View>
           <View style={styles.rightHeaderIcons}>
@@ -324,7 +328,7 @@ const styles = StyleSheet.create({
     width: '50%',
   },
   logoContainer: {
-    marginTop: 80,
+    marginTop: 100,
     alignItems: 'center',
     justifyContent: 'center',
     paddingBottom: 20,
@@ -404,7 +408,7 @@ const styles = StyleSheet.create({
   },
   iconButtonText: {
     marginTop: 5,
-    color: '#2a4770',
+    color: '#2a4770"',
     fontSize: 14,
   },
   modalContainer: {
@@ -438,14 +442,22 @@ const styles = StyleSheet.create({
   notificationicon:{
     position:'relative',
   },
-  topIcons:{
-position:'absolute',
-top:'-8',
-left:'20',
-color:'red',
-fontSize:20,
-fontWeight:600
-  }
+  topIcons: {
+    position: 'absolute',
+    top: -8, // Adjusted to numeric values
+    left: 20,
+    color: 'red',
+    fontSize: 20,
+    fontWeight: '600',
+    backgroundColor: '#fff',
+    width: 20, // Define width for the circle
+    height: 20, // Define height for the circle
+    borderRadius: 20, // Half of the width/height to make it a circle
+    display: 'flex', // Ensures child content is centered
+    justifyContent: 'center', // Centers content horizontally
+    alignItems: 'center', // Centers content vertically
+  },
+  
 });
 
 export default Dashboard;

@@ -16,7 +16,7 @@ const Calendar = ({ navigation }) => {
   };
 
 
-  const Calander = language === 'en' ? 'Calander' : 'مواعيد العيادة';
+  const Calander = language === 'en' ? 'Calender' : 'مواعيد العيادة';
   const AM = language === 'en' ? 'AM' : 'صباحا';
   const PM = language === 'en' ? 'PM' : 'مساء';
  
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     marginLeft: 10, // Adjust spacing for the back button
   },
   textSection: {
-    width: '90%',
+    width: '100%',
     alignItems: 'center',
     marginBottom: 20,
     marginTop: 20,

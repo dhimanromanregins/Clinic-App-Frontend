@@ -1,28 +1,45 @@
-import React, { useState, useEffect , useCallback} from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ToastAndroid, TextInput, ScrollView, Alert , Modal, FlatList} from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ToastAndroid, TextInput, ScrollView, Alert, Modal, FlatList } from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {BASE_URL} from "../../Actions/Api"
+import { BASE_URL } from "../../Actions/Api"
 import { useFocusEffect } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const AddDetail = ({ route, navigation }) => {
   const { doctor_details } = route.params;
   const [language, setLanguage] = useState('en');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedKids, setSelectedKids] = useState([{ id: '', name: '' }]);
   const [doctor, setDoctor] = useState(null);
   const [dateTime, setDateTime] = useState('');
   const [timeSlots, setTimeSlots] = useState([]);
-  const [selectedSlot, setSelectedSlot] = useState(null); 
+  const [selectedSlot, setSelectedSlot] = useState(null);
   const [kids, setKids] = useState(['']);
   const [userId, setUserId] = useState(null); // Assume userId is passed or available from context or login
   const doctorId = doctor_details.id
+  const [show, setShow] = useState(false);
 
-  const ChoseKid = language === 'en' ? 'Chose Kid' : 'أختر الطفل';
+  const ChoseKid = language === 'en' ? 'Choose Kid' : 'أختر الطفل';
   const DayandTime = language === 'en' ? 'Day and Time' : 'اليوم و التاريخ';
   const AvailableHours = language === 'en' ? 'Available Hours' : 'الساعات المتاحة';
   const Book = language === 'en' ? 'Book' : 'كتاب';
   const Apply = language === 'en' ? 'Apply' : 'يتقدم';
   const Noslotsavailable = language === 'en' ? 'No slots available' : 'لا توجد فتحات متاحة';
+
+  const onChange = (event, selectedDate) => {
+    setShow(false);
+    if (selectedDate) {
+
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      setDateTime(formattedDate);
+    }
+  };
+
+  const showDatePicker = () => {
+    setShow(true);
+  };
 
   const toggleLanguage = async (selectedLanguage) => {
     try {
@@ -38,6 +55,29 @@ const AddDetail = ({ route, navigation }) => {
     { code: 'en', label: 'English' },
     { code: 'ur', label: 'العربية' },
   ];
+
+
+  useEffect(() => {
+    const fetchChildren = async () => {
+      try {
+        const token = await AsyncStorage.getItem('access_token');
+        const response = await fetch(`${BASE_URL}/children/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setKids(data); // Set the kids data from API
+        } else {
+          Alert.alert('Error', 'Failed to fetch children');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'An unexpected error occurred while fetching children');
+      }
+    };
+    fetchChildren();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -87,7 +127,9 @@ const AddDetail = ({ route, navigation }) => {
 
     try {
       const selectedDate = dateTime.split(' ')[0]; // Extract date from dateTime
+      console.log(selectedDate, '-------------')
       const response = await fetch(
+
         `${BASE_URL}/doctors/${doctorId}/available_slots/?selected_date=${selectedDate}`
       );
       if (!response.ok) {
@@ -103,13 +145,23 @@ const AddDetail = ({ route, navigation }) => {
   };
 
   const handleAddKid = () => {
-    setKids([...kids, '']); // Add a new empty input field for another kid
+    setSelectedKids([...selectedKids, { id: '', name: '' }]);
   };
 
+
+
   const handleRemoveKid = (index) => {
-    const updatedKids = kids.filter((_, i) => i !== index); // Remove the kid at the specified index
-    setKids(updatedKids);
+    const newSelectedKids = selectedKids.filter((_, i) => i !== index);
+    setSelectedKids(newSelectedKids);
   };
+
+  const handleKidChange = (index, selectedKidId) => {
+    const newSelectedKids = [...selectedKids];
+    const selectedKid = kids.find(kid => kid.id === selectedKidId);
+    newSelectedKids[index] = { id: selectedKidId, name: selectedKid ? selectedKid.name : '' };
+    setSelectedKids(newSelectedKids);
+  };
+
 
   const handleKidNameChange = (text, index) => {
     const updatedKids = [...kids];
@@ -184,31 +236,36 @@ const AddDetail = ({ route, navigation }) => {
     );
   }
 
+  const handleClear = () => {
+    setDateTime('');  // Clear the dateTime state when input is cleared
+    setShow(true);  // Re-show the date picker on clear if the field is focused again
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Modal
-          visible={isModalVisible}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setIsModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <FlatList
-                data={languages}
-                renderItem={({ item }) => (
-                  <TouchableOpacity onPress={() => toggleLanguage(item.code)} style={styles.languageOption}>
-                    <Text style={styles.languageText}>{item.label}</Text>
-                  </TouchableOpacity>
-                )}
-                keyExtractor={(item) => item.code}
-              />
-              <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>Close</Text>
-              </TouchableOpacity>
-            </View>
+        visible={isModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setIsModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <FlatList
+              data={languages}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => toggleLanguage(item.code)} style={styles.languageOption}>
+                  <Text style={styles.languageText}>{item.label}</Text>
+                </TouchableOpacity>
+              )}
+              keyExtractor={(item) => item.code}
+            />
+            <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
           </View>
-        </Modal>
+        </View>
+      </Modal>
       {/* Header Section */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.languageIcon} onPress={() => setIsModalVisible(true)}>
@@ -221,7 +278,7 @@ const AddDetail = ({ route, navigation }) => {
       </TouchableOpacity>
 
       <View style={styles.imageContainer}>
-      {doctor.profile_photo && (
+        {doctor.profile_photo && (
           <Image
             source={{ uri: `${BASE_URL}/${doctor.profile_photo}` }}
             style={styles.logo}
@@ -231,53 +288,74 @@ const AddDetail = ({ route, navigation }) => {
           <Text style={styles.doctorName}>{doctor.name}</Text>
           <Text style={styles.doctorDesignation}>{doctor.specialty}</Text>
         </View>
-      
+
       </View>
 
       <View style={styles.mainContent}>
         <View style={styles.labelContainer}>
           <Text style={styles.inputLabel}>{ChoseKid}</Text>
         </View>
-
+        {/* <View style={styles.inputGroup}> */}
         {/* Dynamic Kid Name Inputs */}
-        {kids.map((kid, index) => (
-          <View style={styles.inputContainer} key={index}>
-          <TouchableOpacity style={styles.iconContainer} onPress={handleAddKid}>
-            <FontAwesome name="plus" size={20} color="#fff" />
-          </TouchableOpacity>
-          <TextInput
-            style={styles.inputField}
-            value={kid}
-            onChangeText={(text) => handleKidNameChange(text, index)}
-            placeholder="Enter Kid's Name"
-            placeholderTextColor="#A0A0A0"
-          />
-          
-          {kids.length > 1 && (
-            <TouchableOpacity
-              style={styles.removeButton}
-              onPress={() => handleRemoveKid(index)}
+        {selectedKids.map((selectedKid, index) => (
+          <View key={index} style={styles.row}>
+            <Picker
+              selectedValue={selectedKid.id}
+              style={{ flex: 1, color: '#fff', backgroundColor: '#2a4770', borderRadius: 20, }}
+              onValueChange={(value) => handleKidChange(index, value)}
             >
-              <MaterialIcons name="close" size={20} color="black" />
-            </TouchableOpacity>
-          )}
-        </View>
+              <Picker.Item label="Select Kid" value="" />
+              {kids
+                .filter(kid => !selectedKids.some(sKid => sKid.id === kid.id) || kid.id === selectedKid.id)
+                .map(kid => (
+                  <Picker.Item key={kid.id} label={kid.full_name} value={kid.id} />
+                ))}
+            </Picker>
+            {index !== 0 && (
+              <TouchableOpacity onPress={() => handleRemoveKid(index)}>
+                <MaterialIcons name="close" size={24} color="#000" />
+              </TouchableOpacity>
+            )}
+            {index === selectedKids.length - 1 && (
+              <TouchableOpacity onPress={handleAddKid}>
+                <MaterialIcons name="add" size={24} color="#000" />
+              </TouchableOpacity>
+            )}
+          </View>
         ))}
+        {/* </View> */}
 
         {/* Date and Time Section */}
         <View style={styles.dateTimeContainer}>
           <Text style={styles.inputLabel}>{DayandTime}</Text>
           <View style={styles.dateTimeRow}>
-          <TouchableOpacity style={styles.applyButton} onPress={handleFetchSlots}>
+            <TouchableOpacity style={styles.applyButton} onPress={handleFetchSlots}>
               <Text style={styles.applyButtonText}>{Apply}</Text>
             </TouchableOpacity>
-            <TextInput
-              style={styles.dateTimeInputField}
-              value={dateTime}
-              onChangeText={setDateTime}
-              placeholder=" (YYYY-MM-DD)"
-              placeholderTextColor="#A0A0A0"
-            />
+
+            <TouchableOpacity onPress={showDatePicker}>
+              <TextInput
+                style={[
+                  styles.dateTimeInputField,
+                  { width: '100%', height: 45, fontSize: 16, marginTop: 0, flex: 1 } // Flex ensures it occupies available space
+                ]}
+                value={dateTime}
+                onChangeText={setDateTime}
+                placeholder="(YYYY-MM-DD)"
+                placeholderTextColor="#A0A0A0"
+                onChange={handleClear}
+              />
+
+            </TouchableOpacity>
+            {show && (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={new Date()}
+                mode="date"
+                display="default"
+                onChange={onChange}
+              />
+            )}
           </View>
         </View>
 
@@ -286,26 +364,26 @@ const AddDetail = ({ route, navigation }) => {
           <Text style={styles.availableHoursText}>{AvailableHours}</Text>
           <View style={styles.borderLine} />
           <View style={styles.timeSlotsContainer}>
-  {timeSlots.length > 0 ? (
-    timeSlots.map((slot, index) => (
-      <TouchableOpacity
-        key={index}
-        style={[
-          styles.timeSlotBox,
-          selectedSlot === slot && styles.selectedSlot, // Apply selectedSlot style if this slot is selected
-        ]}
-        onPress={() => handleSlotSelect(slot)}
-      >
-        <Text style={styles.timeSlotText}>
-          {/* {slot.start} - {slot.end} */}
-          {slot.start}
-        </Text>
-      </TouchableOpacity>
-    ))
-  ) : (
-    <Text style={styles.noSlotsText}>{Noslotsavailable}</Text>
-  )}
-</View>
+            {timeSlots.length > 0 ? (
+              timeSlots.map((slot, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.timeSlotBox,
+                    selectedSlot === slot && styles.selectedSlot, // Apply selectedSlot style if this slot is selected
+                  ]}
+                  onPress={() => handleSlotSelect(slot)}
+                >
+                  <Text style={styles.timeSlotText}>
+                    {/* {slot.start} - {slot.end} */}
+                    {slot.start}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Text style={styles.noSlotsText}>{Noslotsavailable}</Text>
+            )}
+          </View>
         </View>
 
         <TouchableOpacity
@@ -323,22 +401,22 @@ const AddDetail = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#f9f9f9',
-    paddingBottom: 20, 
+    paddingBottom: 20,
   },
   header: {
     width: '100%',
     backgroundColor: 'rgba(24,212,184,255)',
     paddingVertical: 20,
     paddingHorizontal: 15,
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   imageContainer: {
-    flexDirection: 'row', 
-    alignItems: 'center',   
-    justifyContent: 'space-between', 
-    width: '100%',         
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
   logo: {
     width: 100,
@@ -350,14 +428,14 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   blackBox: {
-    backgroundColor: 'rgba(24,212,184,255)', 
-    height: 80,                                  
-    width: '55%',                                
-    justifyContent: 'center',                   
-    alignItems: 'center',                        
-    borderRadius: 20,                            
-    padding: 10,    
-  marginRight:30,                             
+    backgroundColor: 'rgba(24,212,184,255)',
+    height: 80,
+    width: '55%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+    padding: 10,
+    marginRight: 30,
   },
   languageIcon: {
     padding: 5,
@@ -368,88 +446,39 @@ const styles = StyleSheet.create({
   mainContent: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20, 
+    marginTop: 20,
   },
   labelContainer: {
     width: '100%',
-    alignItems: 'flex-end', 
-    marginBottom:0,
+    alignItems: 'flex-end',
+    marginBottom: 0,
   },
+
   inputLabel: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#2a4770',
-    textAlign: 'right', 
-    paddingRight: 30, 
-    marginBottom:0,
+    textAlign: 'right',
+    paddingRight: 30,
+    marginBottom: 10,
 
   },
-   inputContainer: {
+  inputContainer: {
     flexDirection: 'row',
     paddingHorizontal: 10,
     alignItems: 'center',
-
+    justifyContent: 'space-between',
     alignSelf: 'center',
-    justifyContent: 'space-between', 
- 
+    justifyContent: 'space-between',
+
   },
   removeButton: {
     padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    color:'black'
+    color: 'black'
   },
   iconContainer: {
-    backgroundColor: 'rgba(24,212,184,255)', 
-    padding: 10, 
-    borderRadius: 10, 
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '20%',
-    height: 50,  
-  
-  },
-  inputField: {
-    height: 50, // Set height for the dropdown
-    fontSize: 16,
-    color: 'white',
-    width: '60%', // Occupy 60% width
-    backgroundColor: '#2a4770', // Background color for dropdown
-    borderRadius: 10, // Rounded corners
-    paddingLeft: 10, // Add padding for dropdown text
-    marginLeft:'20',
-    marginBottom:'5'
-  },
-  dateTimeInputField: {
-    height: 50,
-    fontSize: 16,
-    color: 'white',
-    width: '57%', 
-    backgroundColor: '#2a4770', 
-    borderRadius: 10,
-    paddingLeft: 10, 
-    alignSelf: 'flex-end', 
-    marginRight: 30, 
-  },
-  availableHoursContainer: {
-    width: '100%',
-    marginTop: 30, 
-    paddingHorizontal: 20,
-  },
-  availableHoursText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2a4770',
-    marginBottom: 10, 
-    textAlign:'center', 
-  },
-  borderLine: {
-    borderBottomWidth: 1,
-    borderColor: '#2a4770',
-    marginBottom: 15, 
-  },
- 
-  applyButton:{
     backgroundColor: 'rgba(24,212,184,255)',
     padding: 10,
     borderRadius: 10,
@@ -457,61 +486,98 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '20%',
     height: 50,
-    marginLeft:33,
+
+  },
+  inputField: {
+    height: 50, // Set height for the dropdown
+    fontSize: 16,
+    color: 'white',
+    width: '100%', // Occupy 60% width
+    backgroundColor: '#2a4770', // Background color for dropdown
+    borderRadius: 10, // Rounded corners
+    paddingLeft: 10, // Add padding for dropdown text
+    marginLeft: '20',
+    marginBottom: '5'
   },
 
+  availableHoursContainer: {
+    width: '100%',
+    marginTop: 30,
+    paddingHorizontal: 20,
+  },
+  availableHoursText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2a4770',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  borderLine: {
+    borderBottomWidth: 1,
+    borderColor: '#2a4770',
+    marginBottom: 15,
+  },
+
+
   doctorName: {
-    color: 'white',           
-    fontSize: 18,           
-    fontWeight: 'bold',       
-    textAlign: 'center',      
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   doctorDesignation: {
-    color: 'white',          
-    fontSize: 14,             
-    textAlign: 'center',     
+    color: 'white',
+    fontSize: 14,
+    textAlign: 'center',
   },
 
   dateTimeContainer: {
     width: '100%',
     marginTop: 20,
-    flexDirection: 'column',  // Keep the label on top of the row
-     // Align label to the left
+    flex: 1,
+    paddingLeft: 30,
   },
-  
+
   dateTimeRow: {
     flexDirection: 'row',  // Arrange button and input in a row
     alignItems: 'center',  // Center vertically
-    justifyContent: 'space-between',  // Space between button and input
     width: '100%',  // Ensure the row takes the full width
+    gap: 10,  // Optional: adds space between the input and button
   },
-  
+
+  applyButton: {
+    backgroundColor: 'rgba(24,212,184,255)',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '55%',
+    // Adjust width to fit within container, adjust as needed
+  },
 
   applyButtonText: {
     color: 'white',  // Text color for the button
     fontSize: 16,
-      // Font size for the button text
-      backgroundColor: 'rgba(24,212,184,255)', 
   },
-  
+
   dateTimeInputField: {
-    height: 50,
+    height: 40,
     fontSize: 16,
     color: 'white',
-    width: '57%',  // Take up 57% of the row width
-    backgroundColor: '#2a4770', 
+    width: '40%',  // Adjust width to take up 60% of the row (or adjust as needed)
+    backgroundColor: '#2a4770',
     borderRadius: 10,
-    paddingLeft: 10,
-    alignSelf: 'flex-end',
-    marginRight:'30'  // Align to the right if needed
-  }
-  ,
+    paddingLeft: 10,  // Add padding to input text
+    // marginRight: '50',  // Avoid large margin that causes overflow
+  },
+
   bookButton: {
     backgroundColor: '#2a4770',
     paddingVertical: 15,
     paddingHorizontal: 30,
     borderRadius: 10,
-    marginTop: 30, 
+    marginTop: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -522,7 +588,7 @@ const styles = StyleSheet.create({
   },
 
   selectedSlot: {
-    backgroundColor: '#4CAF50', 
+    backgroundColor: '#4CAF50',
   },
   timeSlotsContainer: {
     flexDirection: 'row',
@@ -530,7 +596,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly', // Space out the items evenly in a row
     width: '100%',            // Control the width of the container
   },
-  
+
   timeSlotBox: {
     width: '32%',            // Each time slot box takes up roughly one-third of the container's width (for 3 items per row)
     marginBottom: 10,        // Add space between rows
@@ -540,17 +606,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  
+
   selectedSlot: {
     backgroundColor: 'rgba(24,212,184,255)',  // Apply background color when selected
   },
-  
+
   timeSlotText: {
     color: '#2a4770',
     fontSize: 16,
     textAlign: 'center',
   },
-  
+
   noSlotsText: {
     color: 'gray',
     fontSize: 16,
@@ -584,6 +650,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
   },
+
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 30,
+    borderRadius: 10
+  },
+
+
 
 });
 

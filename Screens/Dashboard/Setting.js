@@ -114,7 +114,7 @@ const Setting = ({ navigation }) => {
           />
           <Text style={styles.notificationText}>{DisableNotifications}</Text>
         </View>
-        <View style={styles.notificationSection}>
+        {/* <View style={styles.notificationSection}>
           <Switch
             trackColor={{ false: '#767577', true: '#24D4B8' }}  // Background color for the track (toggle's background)
             thumbColor={isNotificationEnabled ? '#2a4770' : '#f4f3f4'}  // The color of the circle toggle when ON and OFF
@@ -123,8 +123,8 @@ const Setting = ({ navigation }) => {
             value={isNotificationEnabled}
           />
           <Text style={styles.notificationText}></Text>
-        </View>
-        <View style={styles.notificationSection}>
+        </View> */}
+        {/* <View style={styles.notificationSection}>
           <Switch
             trackColor={{ false: '#767577', true: '#24D4B8' }}  // Background color for the track (toggle's background)
             thumbColor={isNotificationEnabled ? '#2a4770' : '#f4f3f4'}  // The color of the circle toggle when ON and OFF
@@ -133,7 +133,7 @@ const Setting = ({ navigation }) => {
             value={isNotificationEnabled}
           />
           <Text style={styles.notificationText}></Text>
-        </View>
+        </View> */}
         <View style={styles.textSection}>
           <Text style={styles.text}>{Language}</Text>
           <View style={styles.borderLine} />

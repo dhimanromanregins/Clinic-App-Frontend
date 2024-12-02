@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(24,212,184,255)',
+    backgroundColor: '#fff',
     padding: 20,
   },
   content: {
@@ -113,16 +113,12 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: 50,
-    borderColor: '#fff',
+    borderColor: '#000',
     borderWidth: 2,
     borderRadius: 5,
     paddingLeft: 10,
-    backgroundColor: 'transparent',
-    shadowColor: '#0ebeff',
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 0.8,
-    shadowRadius: 10,
-    elevation: 5,
+   
+
     marginBottom: 20,
   },
   submitButton: {

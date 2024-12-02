@@ -1,12 +1,14 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, TextInput, ToastAndroid, Modal, FlatList } from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from "jwt-decode";
+import { Picker } from '@react-native-picker/picker';
 import { BASE_URL } from '../../../Actions/Api';
 import { useFocusEffect } from '@react-navigation/native';
 
 const WhomeItMayCocern = ({ navigation }) => {
+  const [selectedKids, setSelectedKids] = useState([{ id: '', name: '' }]);
   const [kids, setKids] = useState([{ name: '' }]);
   const [concern, setConcern] = useState('');
   const [sentTo, setSentTo] = useState('');
@@ -63,19 +65,50 @@ const WhomeItMayCocern = ({ navigation }) => {
       loadSelectedLanguage(); // Invoke the function to load the language
     }, [])
   );
+
+
+  useEffect(() => {
+    const fetchChildren = async () => {
+      try {
+        const token = await AsyncStorage.getItem('access_token');
+        const response = await fetch(`${BASE_URL}/children/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        if (response.ok) {
+          setKids(data); // Set the kids data from API
+        } else {
+          Alert.alert('Error', 'Failed to fetch children');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'An unexpected error occurred while fetching children');
+      }
+    };
+    fetchChildren();
+  }, []);
+
+
   const handleAddKid = () => {
-    setKids([...kids, { name: '' }]);
+    setSelectedKids([...selectedKids, { id: '', name: '' }]);
   };
 
-  const handleInputChange = (index, value) => {
-    const newKids = [...kids];
-    newKids[index].name = value;
-    setKids(newKids);
+  const handleKidChange = (index, selectedKidId) => {
+    const newSelectedKids = [...selectedKids];
+    const selectedKid = kids.find(kid => kid.id === selectedKidId);
+    newSelectedKids[index] = { id: selectedKidId, name: selectedKid ? selectedKid.name : '' };
+    setSelectedKids(newSelectedKids);
+  };
+
+  const getAvailableKids = (selectedKids) => {
+    const selectedKidIds = selectedKids.map(kid => kid.id);
+    return kids.filter(kid => !selectedKidIds.includes(kid.id));
   };
 
   const handleRemoveKid = (index) => {
-    const newKids = kids.filter((_, i) => i !== index);
-    setKids(newKids);
+    const newSelectedKids = selectedKids.filter((_, i) => i !== index);
+    setSelectedKids(newSelectedKids);
   };
 
   const handleSubmit = async () => {
@@ -213,27 +246,28 @@ const WhomeItMayCocern = ({ navigation }) => {
           {/* Kid Names Section - Dynamic Input */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>{KidsName}</Text>
-            {kids.map((kid, index) => (
+            {selectedKids.map((selectedKid, index) => (
               <View key={index} style={styles.row}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter Kid's Name"
-                  value={kid.name}
-                  onChangeText={(value) => handleInputChange(index, value)}
-                  placeholderTextColor="#fff" // Change placeholder color here
-                  color="#fff"
-                />
+                <Picker
+                  selectedValue={selectedKid.id}
+                  style={{ flex: 1, color: '#fff', backgroundColor: '#2a4770', borderRadius: 5 }}
+                  onValueChange={(value) => handleKidChange(index, value)}
+                >
+                  <Picker.Item label="Select Kid" value="" />
+                  {kids
+                    .filter(kid => !selectedKids.some(sKid => sKid.id === kid.id) || kid.id === selectedKid.id)
+                    .map(kid => (
+                      <Picker.Item key={kid.id} label={kid.full_name} value={kid.id} />
+                    ))}
+                </Picker>
                 {index !== 0 && (
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => handleRemoveKid(index)}
-                  >
-                    <MaterialIcons name="close" size={24} color="white" />
+                  <TouchableOpacity onPress={() => handleRemoveKid(index)}>
+                    <MaterialIcons name="close" size={24} color="#000" />
                   </TouchableOpacity>
                 )}
-                {index === kids.length - 1 && (
-                  <TouchableOpacity style={styles.plusButton} onPress={handleAddKid}>
-                    <MaterialIcons name="add" size={24} color="white" />
+                {index === selectedKids.length - 1 && (
+                  <TouchableOpacity onPress={handleAddKid}>
+                    <MaterialIcons name="add" size={24} color="#000" />
                   </TouchableOpacity>
                 )}
               </View>

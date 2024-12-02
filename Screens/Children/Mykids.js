@@ -250,13 +250,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#2a4770',
     textAlign: 'right',
   },
 
   cardSubtitle: {
     fontSize: 14,
-    color: '#dddddd',
+    color: '#2a4770',
     marginTop: 5,
     textAlign: 'right',
   },

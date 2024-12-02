@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(24,212,184,255)',
+
     padding: 20,
   },
   heading: {
@@ -128,7 +128,8 @@ const styles = StyleSheet.create({
   input: {
     width: 40,
     height: 50,
-    borderColor: '#fff',
+    borderColor: '#2a4770',
+
     borderWidth: 2,
     borderRadius: 5,
     textAlign: 'center',
